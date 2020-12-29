@@ -52,11 +52,12 @@ void ReturnToMenu()
 }
 void PrintHangMan(int lives)
 {
-    /*
-    O
-    |
-    /\
-    */
+  float percentage;
+  int total_marks = LiveAmount;
+  int scored = lives;
+
+  percentage = (float)scored / total_marks * 100.0;
+  //to do print based on percentage
 }
 void Game()
 {
@@ -158,6 +159,3 @@ int main()
     MainMenu(); //show Main menu
     return 0; //terminate program
 }
-
-
-
