@@ -52,12 +52,16 @@ void ReturnToMenu()
 }
 void PrintHangMan(int lives)
 {
-  float percentage;
-  int total_marks = LiveAmount;
-  int scored = lives;
+    int percent = lives*100/LiveAmount;
+    if(lives == LiveAmount) return;
 
-  percentage = (float)scored / total_marks * 100.0;
-  //to do print based on percentage
+    if(percent <= 70) printf("#######\n");
+    if(percent <= 80) printf("##"); if(percent <= 60) printf("   |");
+    if(percent <= 80) printf("\n##"); if(percent <= 50) printf("   @");
+    if(percent <= 80) printf("\n##"); if(percent <= 40) printf("  /"); if(percent <= 30) printf("|"); if(percent <= 20) printf("\\");
+    if(percent <= 80) printf("\n##"); if(percent <= 10) printf("  /"); if(percent <= 0) printf(" \\");
+    if(percent <= 80) printf("\n##");
+    if(percent <= 90) printf("\n#########\n");
 }
 void Game()
 {
