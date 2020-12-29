@@ -1,3 +1,3 @@
 # hangman
 
-Hangman game use C language for a big project Algorithm and Programming class in Binus University
+Hangman game in console using C language for an Algorithm and Programming big team project in Binus University
