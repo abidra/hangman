@@ -52,9 +52,10 @@ void ReturnToMenu()
 }
 void PrintHangMan(int lives)
 {
-    int percent = lives*100/LiveAmount;
-    if(lives == LiveAmount) return;
+    if(lives == LiveAmount) return; //if player's live is intact, do not print any hangman
+    int percent = lives*100/LiveAmount; //count the lives percentage
 
+    //print the hangman based on the player's lives current status
     if(percent <= 70) printf("#######\n");
     if(percent <= 80) printf("##"); if(percent <= 60) printf("   |");
     if(percent <= 80) printf("\n##"); if(percent <= 50) printf("   @");
@@ -122,7 +123,7 @@ void Game()
 void Credits()
 {
     system("cls"); //clear the screen
-    printf("Made By :\n"); //Show the Creators of this app
+    printf("Made By :\n"); //Show the Creators of the app
     printf("Abid Rakhmansyah_2440077081\n");
     printf("Ardli Fadhillah Wangsaatmaja_2440029990\n");
     printf("Azella Gania Mutyara_2440035961\n");
@@ -144,14 +145,14 @@ void MainMenu()
     printf("0. Exit\n");
 
     char menu = '\0'; //to store what number the user entered
-    while(menu < '0' || menu > '5') //keep prompting until the user entered a number from 0-3
+    while(menu < '0' || menu > '5') //keep prompting until the user entered a number from 0-5
     {
         printf(">> "); scanf(" %c", &menu); //prompt the user to Input a number to enter one of the menus
-        if(menu < '0' || menu > '5') printf("Please Input 0-3\n"); //Print an error message if the user entered invalid input
+        if(menu < '0' || menu > '5') printf("Please Input 0-5\n"); //Print an error message if the user entered invalid input
     }
 
     if(menu == '0') return; //if the user entered 0, terminate the function (and the program)
-    //if the user entered 1-3, then call the respective functions
+    //if the user entered 1-5, then call the respective functions
     else if(menu == '1') Game();
     else if(menu == '2') ShowDictionary();
     else if(menu == '3') AddWord();
