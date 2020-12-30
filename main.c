@@ -3,17 +3,55 @@
 #include <stdbool.h> //for Invalid booleans
 #include <string.h> //for many useful string functions
 #include <stdlib.h> //for system cls
+#include <time.h> //for random word
 
 //preferences/settings
 #define LiveAmount 10 //change this number to change the player's lives amount
 
+void RandomWord(const char* wordsfile, char* SecretWord)
+{
+    char 	c;
+	int 	count = 0;
+	FILE* 	words = fopen(wordsfile, "r");
+
+	// Count the number of words in the file
+	while ((c = fgetc(words)) != EOF) {
+		if (c == '\n') {
+			count++;
+		}
+	}
+
+	// Pick a word randomly
+	int 	random;
+	int 	i;
+	srand(time(NULL));
+	random = rand() % count;
+	count = i = 0;
+	rewind(words);
+
+	// Load the chosen word into an array
+	while ((c = fgetc(words)) != EOF) {
+		if (count == random) {
+			if(c!='\n') SecretWord[i++] = c;
+		}
+
+		if (c == '\n') {
+			count++;
+		}
+	}
+	SecretWord[i--] = '\0';
+}
+
+void ReturnToMenu();
+
 void ShowDictionary()
 {
-    //just some smiley face
+	//just some smiley face
     /*
    :D
     */
 }
+    
 void AddWord()
 {
     //just some smiley face
@@ -44,6 +82,8 @@ char GetWord()
     }
     return guess; //return the letter input
 }
+void MainMenu();
+
 void ReturnToMenu()
 {
     printf("\nPress [Enter] to return\n"); //prompt the user to press enter to go back to main menu
@@ -64,9 +104,11 @@ void PrintHangMan(int lives)
     if(percent <= 80) printf("\n##");
     if(percent <= 90) printf("\n#########\n");
 }
+
 void Game()
 {
-    char SecretWord[] = "Exoskeleton"; //this is the secret word
+    char SecretWord[21];//this is the secret word
+	RandomWord("Dictionary.txt",SecretWord); 
     strcpy(SecretWord, strlwr(SecretWord)); //make sure all characters are lowercase
     int len = strlen(SecretWord); //get the length of the word
     char Revealed[len+1]; //make the string to hide the word
@@ -81,8 +123,8 @@ void Game()
         system("cls"); //clear the screen
         //if the letter was already guessed before, or if it's the wrong letter,
         //print a message, and decrease the lives
-        if(guessed) { printf("You already guessed that letter!\n"); lives -= 2; }
-        else if(wrong) { printf("Incorrect!\n"); lives--; }
+        if(guessed) { printf("You already guessed that letter!\n"); lives -= 2; if(lives < 0) lives = 0; }
+        else if(wrong) { printf("Incorrect!\n"); lives--; if(lives < 0) lives = 0; }
         else if(GuessNum != 0) { printf("You're Correct!\n"); }
 
         PrintHangMan(lives); //prints the hangman ascii based on the lives
