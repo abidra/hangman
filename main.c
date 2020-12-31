@@ -9,7 +9,7 @@
 #define LiveAmount 10 //change this number to change the player's lives amount
 #define DictFile "Dictionary.txt" //defines the filename
 
-void MainMenu();
+void MainMenu(); //so we can call main menu even before it is defined
 
 void ShowDictionary()
 {
@@ -57,7 +57,7 @@ bool RandomizeWord(char* SecretWord)
 
 	int WordCount; fscanf(words, "%d", &WordCount); //Get the number of words in the file
 	srand(time(0)); //pick a seed based on time
-    int RandomIndex = (rand() % (WordCount-1+1))+1; //randomize a num based on the formula : (rand()%(max–min+1))+min
+	int RandomIndex = (rand() % (WordCount-1+1))+1; //randomize a num based on the formula : (rand()%(max–min+1))+min
 	printf("%d\n", RandomIndex);
 	for(int i = 1; i < RandomIndex; i++) fscanf(words, "%*s"); //ignores the first RandomIndex-1 words from the file
 
@@ -103,7 +103,7 @@ void PrintHangMan(int lives)
 void Game()
 {
     char SecretWord[21]; //this is the secret word
-	if(!RandomizeWord(SecretWord)) return; //Randomize The Secret Word, but return if file operation failed
+    if(!RandomizeWord(SecretWord)) return; //Randomize The Secret Word, but return if file operation failed
 
     strcpy(SecretWord, strlwr(SecretWord)); //make sure all characters are lowercase
     int len = strlen(SecretWord); //get the length of the word
