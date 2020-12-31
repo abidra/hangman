@@ -13,7 +13,7 @@ void MainMenu(); //so we can call main menu even before it is defined
 
 void ShowDictionary()
 {
-	//just some smiley face
+    //just some smiley face
     /*
    :D
     */
@@ -58,7 +58,6 @@ bool RandomizeWord(char* SecretWord)
 	int WordCount; fscanf(words, "%d", &WordCount); //Get the number of words in the file
 	srand(time(0)); //pick a seed based on time
 	int RandomIndex = (rand() % (WordCount-1+1))+1; //randomize a num based on the formula : (rand()%(max–min+1))+min
-	printf("%d\n", RandomIndex);
 	for(int i = 1; i < RandomIndex; i++) fscanf(words, "%*s"); //ignores the first RandomIndex-1 words from the file
 
 	fscanf(words, "%s", SecretWord); //get the word at RandomIndex, and assign it to the secret word
