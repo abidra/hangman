@@ -1,48 +1,15 @@
 //library imports
 #include <stdio.h> //for standard input and output
-#include <stdbool.h> //for Invalid booleans
+#include <stdbool.h> //for boolean variables
 #include <string.h> //for many useful string functions
 #include <stdlib.h> //for system cls
-#include <time.h> //for random word
+#include <time.h> //to randomize seed based on time
 
 //preferences/settings
 #define LiveAmount 10 //change this number to change the player's lives amount
+#define DictFile "Dictionary.txt" //defines the filename
 
-void RandomWord(const char* wordsfile, char* SecretWord)
-{
-    char 	c;
-	int 	count = 0;
-	FILE* 	words = fopen(wordsfile, "r");
-
-	// Count the number of words in the file
-	while ((c = fgetc(words)) != EOF) {
-		if (c == '\n') {
-			count++;
-		}
-	}
-
-	// Pick a word randomly
-	int 	random;
-	int 	i;
-	srand(time(NULL));
-	random = rand() % count;
-	count = i = 0;
-	rewind(words);
-
-	// Load the chosen word into an array
-	while ((c = fgetc(words)) != EOF) {
-		if (count == random) {
-			if(c!='\n') SecretWord[i++] = c;
-		}
-
-		if (c == '\n') {
-			count++;
-		}
-	}
-	SecretWord[i--] = '\0';
-}
-
-void ReturnToMenu();
+void MainMenu();
 
 void ShowDictionary()
 {
@@ -51,7 +18,6 @@ void ShowDictionary()
    :D
     */
 }
-    
 void AddWord()
 {
     //just some smiley face
@@ -65,6 +31,38 @@ void RemoveWord()
     /*
    :D
     */
+}
+bool FileError(FILE *fp)
+{
+    //if file does not exists, close the file, prints an error message, and return true(indicates error)
+    if(fp == NULL) { fclose(fp); printf("\nError : File Does Not Exist\n"); return true; }
+    else
+    {
+        //else, move the file cursor the the end of the file
+        fseek(fp, 0, SEEK_END);
+        int len = ftell(fp); //and get the length of the file
+        if (len > 0) //if length is not zero, the file is not empty
+        {
+            rewind(fp); //get back to the beginneing of the file
+            return false; //return false(indicates non error)
+        }
+        //else(length of file is zero), close the file, print an error message, and return true(indicates error)
+        else { fclose(fp); printf("\nError : File is Empty\n"); return true; }
+    }
+}
+bool RandomizeWord(char* SecretWord)
+{
+	FILE *words = fopen(DictFile, "r"); //open the file
+	if(FileError(words)) return false; //returns false if file operation failed
+
+	int WordCount; fscanf(words, "%d", &WordCount); //Get the number of words in the file
+	srand(time(0)); //pick a seed based on time
+    int RandomIndex = (rand() % (WordCount-1+1))+1; //randomize a num based on the formula : (rand()%(max–min+1))+min
+	printf("%d\n", RandomIndex);
+	for(int i = 1; i < RandomIndex; i++) fscanf(words, "%*s"); //ignores the first RandomIndex-1 words from the file
+
+	fscanf(words, "%s", SecretWord); //get the word at RandomIndex, and assign it to the secret word
+	fclose(words); return true; //close the file and returns true(meaning operation success)
 }
 char GetWord()
 {
@@ -82,8 +80,6 @@ char GetWord()
     }
     return guess; //return the letter input
 }
-void MainMenu();
-
 void ReturnToMenu()
 {
     printf("\nPress [Enter] to return\n"); //prompt the user to press enter to go back to main menu
@@ -104,11 +100,11 @@ void PrintHangMan(int lives)
     if(percent <= 80) printf("\n##");
     if(percent <= 90) printf("\n#########\n");
 }
-
 void Game()
 {
-    char SecretWord[21];//this is the secret word
-	RandomWord("Dictionary.txt",SecretWord); 
+    char SecretWord[21]; //this is the secret word
+	if(!RandomizeWord(SecretWord)) return; //Randomize The Secret Word, but return if file operation failed
+
     strcpy(SecretWord, strlwr(SecretWord)); //make sure all characters are lowercase
     int len = strlen(SecretWord); //get the length of the word
     char Revealed[len+1]; //make the string to hide the word
@@ -122,7 +118,7 @@ void Game()
     {
         system("cls"); //clear the screen
         //if the letter was already guessed before, or if it's the wrong letter,
-        //print a message, and decrease the lives
+        //print a message, decrease the lives, and make sure the lives won't go below 0
         if(guessed) { printf("You already guessed that letter!\n"); lives -= 2; if(lives < 0) lives = 0; }
         else if(wrong) { printf("Incorrect!\n"); lives--; if(lives < 0) lives = 0; }
         else if(GuessNum != 0) { printf("You're Correct!\n"); }
