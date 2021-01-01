@@ -10,22 +10,14 @@
 #define DictFile "Dictionary.txt" //defines the filename
 
 void MainMenu(); //so we can call main menu even before it is defined
-
-void ShowDictionary()
+void Dictionary()
 {
     //just some smiley face
     /*
    :D
     */
 }
-void AddWord()
-{
-    //just some smiley face
-    /*
-   :D
-    */
-}
-void RemoveWord()
+void Leaderboard()
 {
     //just some smiley face
     /*
@@ -99,30 +91,52 @@ void PrintHangMan(int lives)
     if(percent <= 80) printf("\n##");
     if(percent <= 90) printf("\n#########\n");
 }
-void Game()
+int LetterRarity(bool *arr)
+{
+    int total = 0; //keep track of the rarity measure
+    //add total by 1 for every common frequency english letters
+    char common[] = "etainoshr";
+    for(int i = 0; i < 9; i++) { if(arr[common[i]-'a']) total += 1; }
+    //add total by 2 for every medium frequency english letters
+    char medium[] = "dlucmfwyg";
+    for(int i = 0; i < 9; i++) { if(arr[medium[i]-'a']) total += 2; }
+    //add total by 3 for every rare frequency english letters
+    char rare[] = "pbvkqjxz";
+    for(int i = 0; i < 8; i++) { if(arr[rare[i]-'a']) total += 3; }
+    return total; //return final rarity measure
+}
+void Game(int round, int TotalScore)
 {
     char SecretWord[21]; //this is the secret word
     if(!RandomizeWord(SecretWord)) return; //Randomize The Secret Word, but return if file operation failed
-
     strcpy(SecretWord, strlwr(SecretWord)); //make sure all characters are lowercase
     int len = strlen(SecretWord); //get the length of the word
+
     char Revealed[len+1]; //make the string to hide the word
     for(int i = 0; i < len; i++) { Revealed[i] = '_'; } Revealed[len] = '\0'; //set the hidden characters to '_'
     char GuessList[27] = ""; //keep track of used/guessed words
     int GuessNum = 0; //keep track of the amount of character used
+
     int lives = LiveAmount; //keep track of the player's lives
     bool wrong = false, guessed = false; //to determine whether or not the player guessed the right letter
+    //get all different letters in the secret word
+    bool UniqueChar[27]; memset(UniqueChar, 0, 27*sizeof(bool));
+    for(int i = 0; i < len; i++) UniqueChar[SecretWord[i]-'a'] = true;
+    //get word difficulty based on letter rarity
+    int difficulty = LetterRarity(UniqueChar);
 
     while(true) //keep looping until the game is over
     {
         system("cls"); //clear the screen
         //if the letter was already guessed before, or if it's the wrong letter,
         //print a message, decrease the lives, and make sure the lives won't go below 0
+        //else if the player have guessed, and the guess is right, just print a message
         if(guessed) { printf("You already guessed that letter!\n"); lives -= 2; if(lives < 0) lives = 0; }
         else if(wrong) { printf("Incorrect!\n"); lives--; if(lives < 0) lives = 0; }
         else if(GuessNum != 0) { printf("You're Correct!\n"); }
 
-        PrintHangMan(lives); //prints the hangman ascii based on the lives
+        printf("Round %d\n", round); //print the current round
+        PrintHangMan(lives); //print the hangman ascii based on the number of lives
         printf("%s\n", Revealed); //print the hidden string
         printf("%d letters\n", len); //show the length of the secret word
 
@@ -155,7 +169,17 @@ void Game()
 
     //prints win/lose message based on the number of lives
     printf("\nYou %s The secret word was %s.\n", lives > 0 ? "win!" : "lose...", SecretWord);
-    ReturnToMenu(); //press enter to go back to main menu
+    //calculate score based on the word difficulty and the number of lives
+    int score = TotalScore + (difficulty * lives);
+    //prints the current score if the game is not over, or print final score if the game is over
+    printf("%s Score is : %d\n", lives > 0 ? "Current" : "Final", score);
+    if(lives > 0) //if the game is not over
+    {
+        printf("\nPress [Enter] to continue\n"); //prompt the user to press enter to continue to the next round
+        scanf("%*c%*c"); //get the \n characters
+        Game(round+1, score); //go the the next round
+    }
+    else ReturnToMenu(); //if the game is over, prompt the use to press enter to go back to main menu
 }
 void Credits()
 {
@@ -175,26 +199,24 @@ void MainMenu()
     printf("--------------------------\n");
     //Print all available Menus
     printf("1. Start Game\n");
-    printf("2. See Dictionary List\n");
-    printf("3. Add Words to Dictionary\n");
-    printf("4. Remove Words from Dictionary\n");
-    printf("5. Credits\n");
+    printf("2. Dictionary\n");
+    printf("3. Leaderboard\n");
+    printf("4. Credits\n");
     printf("0. Exit\n");
 
     char menu = '\0'; //to store what number the user entered
-    while(menu < '0' || menu > '5') //keep prompting until the user entered a number from 0-5
+    while(menu < '0' || menu > '4') //keep prompting until the user entered a number from 0-4
     {
         printf(">> "); scanf(" %c", &menu); //prompt the user to Input a number to enter one of the menus
-        if(menu < '0' || menu > '5') printf("Please Input 0-5\n"); //Print an error message if the user entered invalid input
+        if(menu < '0' || menu > '4') printf("Please Input 0-4\n"); //Print an error message if the user entered invalid input
     }
 
     if(menu == '0') return; //if the user entered 0, terminate the function (and the program)
-    //if the user entered 1-5, then call the respective functions
-    else if(menu == '1') Game();
-    else if(menu == '2') ShowDictionary();
-    else if(menu == '3') AddWord();
-    else if(menu == '4') RemoveWord();
-    else if(menu == '5') Credits();
+    //if the user entered 1-4, then call the respective functions
+    else if(menu == '1') Game(1, 0);
+    else if(menu == '2') Dictionary();
+    else if(menu == '3') Leaderboard();
+    else if(menu == '4') Credits();
 }
 int main()
 {
