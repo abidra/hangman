@@ -8,14 +8,26 @@
 //preferences/settings
 #define LiveAmount 10 //change this number to change the player's lives amount
 #define DictFile "Dictionary.txt" //defines the filename
+char arr[50][21];
 
 void MainMenu(); //so we can call main menu even before it is defined
+void merge(char arr[][21], int l, int m, int r);
+void mergeSort(char arr[][21], int l, int r);
+void printArray(char A[][21], int size);
+void ReturnToMenu();
+bool FileError(FILE *fp);
 void Dictionary()
 {
-    //just some smiley face
-    /*
-   :D
-    */
+    FILE *words = fopen(DictFile, "r");
+	int wordcount; fscanf(words,"%d",&wordcount);
+	for(int i=0; i<wordcount;i++){
+		fscanf(words," %[^\n]s ",arr[i]);
+	}
+	mergeSort(arr, 0, wordcount - 1);
+
+	printf("\nSorted array is \n");
+	printArray(arr, wordcount);
+	ReturnToMenu();
 }
 void Leaderboard()
 {
@@ -222,4 +234,75 @@ int main()
 {
     MainMenu(); //show Main menu
     return 0; //terminate program
+}
+
+void merge(char arr[][21], int l, int m, int r)
+{
+	int i, j, k;
+	int n1 = m - l + 1;
+	int n2 = r - m;
+
+	/* create temp arrays */
+	char L[n1][21], R[n2][21];
+
+	/* Copy data to temp arrays L[] and R[] */
+	for (i = 0; i < n1; i++)
+		strcpy(L[i],arr[l + i]);
+	for (j = 0; j < n2; j++)
+		strcpy(R[j], arr[m + 1 + j]);
+
+	/* Merge the temp arrays back into arr[l..r]*/
+	i = 0; // Initial index of first subarray
+	j = 0; // Initial index of second subarray
+	k = l; // Initial index of merged subarray
+	while (i < n1 && j < n2) {
+		if (strcmp(L[i], R[j])<0) {
+			strcpy(arr[k], L[i]);
+			i++;
+		}
+		else {
+			strcpy(arr[k], R[j]);
+			j++;
+		}
+		k++;
+	}
+
+	/* Copy the remaining elements of L[], if there
+	are any */
+	while (i < n1) {
+		strcpy(arr[k], L[i]);
+		i++;
+		k++;
+	}
+
+	/* Copy the remaining elements of R[], if there
+	are any */
+	while (j < n2) {
+		strcpy(arr[k], R[j]);
+		j++;
+		k++;
+	}
+}
+
+/* l is for left index and r is right index of the
+sub-array of arr to be sorted */
+void mergeSort(char arr[][21], int l, int r)
+{
+	if (l < r) {
+		// Same as (l+r)/2, but avoids overflow for
+		// large l and h
+		int m = l + (r - l) / 2;
+
+		// Sort first and second halves
+		mergeSort(arr, l, m);
+		mergeSort(arr, m + 1, r);
+
+		merge(arr, l, m, r);
+	}
+}
+void printArray(char A[][21], int size)
+{
+	int i;
+	for (i = 0; i < size; i++)
+	{ printf("%d) %s\n",i+1, A[i]);}
 }
