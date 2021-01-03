@@ -173,8 +173,8 @@ void Game(int round, int TotalScore)
 }
 void Dictionary()
 {
-    FILE *words = fopen(DictFile, "r"); //open the file
-    if(FileError(words)) return false; //returns false if file operation failed
+  FILE *words = fopen(DictFile, "r"); //open the file
+  if(FileError(words)) return; //returns false if file operation failed
 	int WordCount; fscanf(words, "%d", &WordCount); //Get the number of words in the file
 	char Dict[WordCount][MaxWordLen]; //store all the words from dictionary to be sorted
 
@@ -197,11 +197,23 @@ void Credits()
     printf("Steven Yanuar Prasetyo Ginting_2440091722\n");
     ReturnToMenu(); //press enter to go back to main menu
 }
+
+//Clear Screen
+void clear(){
+    #if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+        system("clear");
+    #endif
+
+    #if defined(_WIN32) || defined(_WIN64)
+        system("cls");
+    #endif
+}
+
 void MainMenu()
 {
     clear(); //clear the screen
     //print Introduction Message
-    printf("Welcome to Hangman, %s\n", &name);
+    printf("Welcome to Hangman, %s\n", name);
     printf("--------------------------\n");
     //Print all available Menus
     printf("1. Start Game\n");
@@ -308,15 +320,4 @@ void MergeSort(char (*arr)[MaxWordLen], int min, int max)
     MergeSort(arr, mid+1, max); //divide and sort the second half of the array
 
     MergeArray(arr, min, mid, max); //merge and sort that first and second half of the array
-}
-
-//Clear Screen
-void clear(){
-    #if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
-        system("clear");
-    #endif
-
-    #if defined(_WIN32) || defined(_WIN64)
-        system("cls");
-    #endif
 }
