@@ -16,6 +16,7 @@ void ReturnToMenu();
 bool FileError(FILE *fp);
 void MergeSort(char (*arr)[MaxWordLen], int min, int max);
 char *strToLower(char cString[]);
+void clear();
 
 //global var
 char name[100];
@@ -117,7 +118,7 @@ void Game(int round, int TotalScore)
 
     while(true) //keep looping until the game is over
     {
-        system("cls"); //clear the screen
+        clear(); //clear the screen
         //if the letter was already guessed before, or if it's the wrong letter,
         //print a message, decrease the lives, and make sure the lives won't go below 0
         //else if the player have guessed, and the guess is right, just print a message
@@ -181,7 +182,7 @@ void Dictionary()
 	for(int i = 0; i < WordCount; i++) fscanf(words, "%s", Dict[i]); //read all word input and store them
 	MergeSort(Dict, 0, WordCount-1); //sort all words alphabetically (ascending from a to z)
 
-	system("cls"); //clear the screen
+	clear(); //clear the screen
 	printf("Word Dictionary List :\n"); //prints title
 	for (int i = 0; i < WordCount; i++) printf("%d. %s\n", i+1, Dict[i]); //prints all words from the dictionary
 	fclose(words); //close the file
@@ -189,7 +190,7 @@ void Dictionary()
 }
 void Credits()
 {
-    system("cls"); //clear the screen
+    clear(); //clear the screen
     printf("Made By :\n"); //Show the Creators of the app
     printf("Abid Rakhmansyah_2440077081\n");
     printf("Ardli Fadhillah Wangsaatmaja_2440029990\n");
@@ -205,7 +206,7 @@ void clear(){
     #endif
 
     #if defined(_WIN32) || defined(_WIN64)
-        system("cls");
+        clear();
     #endif
 }
 
