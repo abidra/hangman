@@ -4,6 +4,7 @@
 #include <string.h> //for many useful string functions
 #include <stdlib.h> //for system cls
 #include <time.h> //to randomize seed based on time
+#include <ctype.h> //to classify (and transform) individual characters
 
 //preferences/settings
 #define LiveAmount 10 //defines the player's lives amount
