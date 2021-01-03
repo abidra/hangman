@@ -1,6 +1,6 @@
 # hangman
 
-Hangman arcade game in console using C language for an Algorithm and Programming big team project in Binus University. complete with hangman arcade system, highscore system, file operation for dictionary and highscores, sorting system for the dictionary and leaderboard, and searching system for name in leaderboard database. 
+Hangman arcade game in console using C language for an Algorithm and Programming big team project in Binus University. Complete with hangman arcade system, highscore system, file operation for dictionary and highscore, sorting system for the word list and leaderboard, and searching system for name in the leaderboard database. 
 
 Contributors :
 
