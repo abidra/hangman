@@ -6,66 +6,21 @@
 #include <time.h> //to randomize seed based on time
 
 //preferences/settings
-#define LiveAmount 10 //change this number to change the player's lives amount
+#define LiveAmount 10 //defines the player's lives amount
 #define DictFile "Dictionary.txt" //defines the filename
-char arr[50][21];
+#define MaxWordLen 25 //defines the maximum word length in the dictionary (n+1)
 
-void MainMenu(); //so we can call main menu even before it is defined
-void merge(char arr[][21], int l, int m, int r);
-void mergeSort(char arr[][21], int l, int r);
-void printArray(char A[][21], int size);
+//function prototype, so we can call them even before it is defined
 void ReturnToMenu();
 bool FileError(FILE *fp);
-void Dictionary()
-{
-    FILE *words = fopen(DictFile, "r");
-	int wordcount; fscanf(words,"%d",&wordcount);
-	for(int i=0; i<wordcount;i++){
-		fscanf(words," %[^\n]s ",arr[i]);
-	}
-	mergeSort(arr, 0, wordcount - 1);
+void MergeSort(char (*arr)[MaxWordLen], int min, int max);
 
-	printf("\nSorted array is \n");
-	printArray(arr, wordcount);
-	ReturnToMenu();
-}
 void Leaderboard()
 {
     //just some smiley face
     /*
    :D
     */
-}
-bool FileError(FILE *fp)
-{
-    //if file does not exists, close the file, prints an error message, and return true(indicates error)
-    if(fp == NULL) { fclose(fp); printf("\nError : File Does Not Exist\n"); return true; }
-    else
-    {
-        //else, move the file cursor the the end of the file
-        fseek(fp, 0, SEEK_END);
-        int len = ftell(fp); //and get the length of the file
-        if (len > 0) //if length is not zero, the file is not empty
-        {
-            rewind(fp); //get back to the beginneing of the file
-            return false; //return false(indicates non error)
-        }
-        //else(length of file is zero), close the file, print an error message, and return true(indicates error)
-        else { fclose(fp); printf("\nError : File is Empty\n"); return true; }
-    }
-}
-bool RandomizeWord(char* SecretWord)
-{
-	FILE *words = fopen(DictFile, "r"); //open the file
-	if(FileError(words)) return false; //returns false if file operation failed
-
-	int WordCount; fscanf(words, "%d", &WordCount); //Get the number of words in the file
-	srand(time(0)); //pick a seed based on time
-	int RandomIndex = (rand() % (WordCount-1+1))+1; //randomize a num based on the formula : (rand()%(max–min+1))+min
-	for(int i = 1; i < RandomIndex; i++) fscanf(words, "%*s"); //ignores the first RandomIndex-1 words from the file
-
-	fscanf(words, "%s", SecretWord); //get the word at RandomIndex, and assign it to the secret word
-	fclose(words); return true; //close the file and returns true(meaning operation success)
 }
 char GetWord()
 {
@@ -82,12 +37,6 @@ char GetWord()
             { invalid = true; printf("Please Input Alphabets only\n"); }
     }
     return guess; //return the letter input
-}
-void ReturnToMenu()
-{
-    printf("\nPress [Enter] to return\n"); //prompt the user to press enter to go back to main menu
-    scanf("%*c%*c"); //get the \n characters
-    MainMenu(); //go back to main menu
 }
 void PrintHangMan(int lives)
 {
@@ -117,9 +66,22 @@ int LetterRarity(bool *arr)
     for(int i = 0; i < 8; i++) { if(arr[rare[i]-'a']) total += 3; }
     return total; //return final rarity measure
 }
+bool RandomizeWord(char* SecretWord)
+{
+	FILE *words = fopen(DictFile, "r"); //open the file
+	if(FileError(words)) return false; //returns false if file operation failed
+
+	int WordCount; fscanf(words, "%d", &WordCount); //Get the number of words in the file
+	srand(time(0)); //pick a seed based on time
+	int RandomIndex = (rand() % (WordCount-1+1))+1; //randomize a num based on the formula : (rand()%(max–min+1))+min
+	for(int i = 1; i < RandomIndex; i++) fscanf(words, "%*s"); //ignores the first RandomIndex-1 words from the file
+
+	fscanf(words, "%s", SecretWord); //get the word at RandomIndex, and assign it to the secret word
+	fclose(words); return true; //close the file and returns true(meaning operation success)
+}
 void Game(int round, int TotalScore)
 {
-    char SecretWord[21]; //this is the secret word
+    char SecretWord[MaxWordLen]; //this is the secret word
     if(!RandomizeWord(SecretWord)) return; //Randomize The Secret Word, but return if file operation failed
     strcpy(SecretWord, strlwr(SecretWord)); //make sure all characters are lowercase
     int len = strlen(SecretWord); //get the length of the word
@@ -163,7 +125,7 @@ void Game(int round, int TotalScore)
         printf("\nRemaining Lives : %d\n", lives); //show the player's lives
         if(strcmp(SecretWord, Revealed) == 0 || lives == 0) break; //if the word has been revealed, break
         char guess = GetWord(); //to store the guessed char input
-        if(guess < 'a') guess += 'a'-'A'; //make sure the letter is lowercase
+        if(guess < 'a') guess += ('a'-'A'); //make sure the letter is lowercase
 
         //if the letter was already guessed before, set the guessed bool to true,
         //but if it's not, add the guessed letter to the gussed list, set the guessed bool to false, and increment guessnum
@@ -192,6 +154,22 @@ void Game(int round, int TotalScore)
         Game(round+1, score); //go the the next round
     }
     else ReturnToMenu(); //if the game is over, prompt the use to press enter to go back to main menu
+}
+void Dictionary()
+{
+    FILE *words = fopen(DictFile, "r"); //open the file
+    if(FileError(words)) return false; //returns false if file operation failed
+	int WordCount; fscanf(words, "%d", &WordCount); //Get the number of words in the file
+	char Dict[WordCount][MaxWordLen]; //store all the words from dictionary to be sorted
+
+	for(int i = 0; i < WordCount; i++) fscanf(words, "%s", Dict[i]); //read all word input and store them
+	MergeSort(Dict, 0, WordCount-1); //sort all words alphabetically (ascending from a to z)
+
+	system("cls"); //clear the screen
+	printf("Word Dictionary List :\n"); //prints title
+	for (int i = 0; i < WordCount; i++) printf("%d. %s\n", i+1, Dict[i]); //prints all words from the dictionary
+	fclose(words); //close the file
+	ReturnToMenu(); //press enter to go back to main menu
 }
 void Credits()
 {
@@ -236,73 +214,60 @@ int main()
     return 0; //terminate program
 }
 
-void merge(char arr[][21], int l, int m, int r)
+//Utilities
+void ReturnToMenu()
 {
-	int i, j, k;
-	int n1 = m - l + 1;
-	int n2 = r - m;
-
-	/* create temp arrays */
-	char L[n1][21], R[n2][21];
-
-	/* Copy data to temp arrays L[] and R[] */
-	for (i = 0; i < n1; i++)
-		strcpy(L[i],arr[l + i]);
-	for (j = 0; j < n2; j++)
-		strcpy(R[j], arr[m + 1 + j]);
-
-	/* Merge the temp arrays back into arr[l..r]*/
-	i = 0; // Initial index of first subarray
-	j = 0; // Initial index of second subarray
-	k = l; // Initial index of merged subarray
-	while (i < n1 && j < n2) {
-		if (strcmp(L[i], R[j])<0) {
-			strcpy(arr[k], L[i]);
-			i++;
-		}
-		else {
-			strcpy(arr[k], R[j]);
-			j++;
-		}
-		k++;
-	}
-
-	/* Copy the remaining elements of L[], if there
-	are any */
-	while (i < n1) {
-		strcpy(arr[k], L[i]);
-		i++;
-		k++;
-	}
-
-	/* Copy the remaining elements of R[], if there
-	are any */
-	while (j < n2) {
-		strcpy(arr[k], R[j]);
-		j++;
-		k++;
-	}
+    printf("\nPress [Enter] to return\n"); //prompt the user to press enter to go back to main menu
+    scanf("%*c%*c"); //get the \n characters
+    MainMenu(); //go back to main menu
 }
-
-/* l is for left index and r is right index of the
-sub-array of arr to be sorted */
-void mergeSort(char arr[][21], int l, int r)
+bool FileError(FILE *fp)
 {
-	if (l < r) {
-		// Same as (l+r)/2, but avoids overflow for
-		// large l and h
-		int m = l + (r - l) / 2;
-
-		// Sort first and second halves
-		mergeSort(arr, l, m);
-		mergeSort(arr, m + 1, r);
-
-		merge(arr, l, m, r);
-	}
+    //if file does not exists, close the file, prints an error message, and return true(indicates error)
+    if(fp == NULL) { fclose(fp); printf("\nError : File Does Not Exist\n"); return true; }
+    else
+    {
+        //else, move the file cursor the the end of the file
+        fseek(fp, 0, SEEK_END);
+        int len = ftell(fp); //and get the length of the file
+        if (len > 0) //if length is not zero, the file is not empty
+        {
+            rewind(fp); //get back to the beginneing of the file
+            return false; //return false(indicates non error)
+        }
+        //else(length of file is zero), close the file, print an error message, and return true(indicates error)
+        else { fclose(fp); printf("\nError : File is Empty\n"); return true; }
+    }
 }
-void printArray(char A[][21], int size)
+void MergeArray(char (*arr)[MaxWordLen], int min, int mid, int max)
 {
-	int i;
-	for (i = 0; i < size; i++)
-	{ printf("%d) %s\n",i+1, A[i]);}
+    int len1 = mid-min+1, len2 = max-mid; //get the length of the first and second half of the array
+    //make a temporary array to store the first and the second half of the array
+    char left[len1][MaxWordLen], right[len2][MaxWordLen];
+    for(int i = 0; i < len1; i++) strcpy(left[i], arr[min+i]); //copy the first half of the array to the left array
+    for(int i = 0; i < len2; i++) strcpy(right[i], arr[mid+1+i]); //copy the first half of the array to the right array
+
+    int x = 0, y = 0; //set the starting index for the left array and the right array
+    for(int i = min; i <= max; i++) //iterate from the min until max index from the original array
+    {
+        //if there are no more elements in the left/right array,
+        //copy string from the other array to the merged array, increment that array's index, then continue
+        if(x >= len1) { strcpy(arr[i], right[y++]); continue; }
+        else if(y >= len2) { strcpy(arr[i], left[x++]); continue; }
+
+        //if there are still some elements on both of the arrays,
+        //compare the strings, and copy the smaller element(alphabetically) to the merged array
+        if(strcmp(left[x], right[y]) < 0) strcpy(arr[i], left[x++]);
+        else strcpy(arr[i], right[y++]);
+    }
+}
+void MergeSort(char (*arr)[MaxWordLen], int min, int max)
+{
+    if(min >= max) return; //if min exceeds max, then return
+
+    int mid = ((max-min)/2)+min; //get the middle point of max and min
+    MergeSort(arr, min, mid); //divide and sort the first half of the array
+    MergeSort(arr, mid+1, max); //divide and sort the second half of the array
+
+    MergeArray(arr, min, mid, max); //merge and sort that first and second half of the array
 }
