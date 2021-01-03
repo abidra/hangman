@@ -184,6 +184,7 @@ void Credits()
 void MainMenu()
 {
     system("cls"); //clear the screen
+    checkName();
     //print Introduction Message
     printf("Welcome to Hangman\n");
     printf("--------------------------\n");
@@ -208,6 +209,28 @@ void MainMenu()
     else if(menu == '3') Leaderboard();
     else if(menu == '4') Credits();
 }
+
+void checkName()
+{
+  char name[100];
+  bool isValid = false;
+
+  //Input Name
+  do{
+      num = 0;
+      printf("\nYour name : ");
+      scanf(" %[^\n]", name);
+
+      length = strlen(name);
+
+      for(i=0;i<length;i++){
+          if(isdigit(name[i])!=0) num++;
+      }
+
+  }while(num>0);
+
+}
+
 int main()
 {
     MainMenu(); //show Main menu
