@@ -17,6 +17,9 @@ bool FileError(FILE *fp);
 void MergeSort(char (*arr)[MaxWordLen], int min, int max);
 char *strToLower(char cString[]);
 
+//global var
+char name[100];
+
 void Leaderboard()
 {
     //just some smiley face
@@ -199,7 +202,7 @@ void MainMenu()
     system("cls"); //clear the screen
     checkName();
     //print Introduction Message
-    printf("Welcome to Hangman\n");
+    printf("Welcome to Hangman, %s\n", &name);
     printf("--------------------------\n");
     //Print all available Menus
     printf("1. Start Game\n");
@@ -225,7 +228,6 @@ void MainMenu()
 
 void checkName()
 {
-  char name[100];
   bool isValid = false;
   int num;
   //Input Name
