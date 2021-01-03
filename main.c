@@ -15,6 +15,7 @@
 void ReturnToMenu();
 bool FileError(FILE *fp);
 void MergeSort(char (*arr)[MaxWordLen], int min, int max);
+char *strToLower(char cString[]);
 
 void Leaderboard()
 {
@@ -80,11 +81,22 @@ bool RandomizeWord(char* SecretWord)
 	fscanf(words, "%s", SecretWord); //get the word at RandomIndex, and assign it to the secret word
 	fclose(words); return true; //close the file and returns true(meaning operation success)
 }
+
+char *strToLower(char cString[]) {
+    // Declarations
+    int iTeller;
+
+    for (iTeller = 0; cString[iTeller] != '\0'; iTeller++)
+        cString[iTeller] = (char)tolower(cString[iTeller]);
+
+    return cString;
+}
+
 void Game(int round, int TotalScore)
 {
     char SecretWord[MaxWordLen]; //this is the secret word
     if(!RandomizeWord(SecretWord)) return; //Randomize The Secret Word, but return if file operation failed
-    strcpy(SecretWord, strlwr(SecretWord)); //make sure all characters are lowercase
+    strcpy(SecretWord, strToLower(SecretWord)); //make sure all characters are lowercase
     int len = strlen(SecretWord); //get the length of the word
 
     char Revealed[len+1]; //make the string to hide the word
@@ -215,16 +227,16 @@ void checkName()
 {
   char name[100];
   bool isValid = false;
-
+  int num;
   //Input Name
   do{
       num = 0;
       printf("\nYour name : ");
       scanf(" %[^\n]", name);
 
-      length = strlen(name);
+      int length = strlen(name);
 
-      for(i=0;i<length;i++){
+      for(int i=0;i<length;i++){
           if(isdigit(name[i])!=0) num++;
       }
 
