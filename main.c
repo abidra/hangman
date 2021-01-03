@@ -199,8 +199,7 @@ void Credits()
 }
 void MainMenu()
 {
-    system("cls"); //clear the screen
-    checkName();
+    clear(); //clear the screen
     //print Introduction Message
     printf("Welcome to Hangman, %s\n", &name);
     printf("--------------------------\n");
@@ -248,6 +247,7 @@ void checkName()
 
 int main()
 {
+    checkName(); //checkName
     MainMenu(); //show Main menu
     return 0; //terminate program
 }
@@ -308,4 +308,15 @@ void MergeSort(char (*arr)[MaxWordLen], int min, int max)
     MergeSort(arr, mid+1, max); //divide and sort the second half of the array
 
     MergeArray(arr, min, mid, max); //merge and sort that first and second half of the array
+}
+
+//Clear Screen
+void clear(){
+    #if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+        system("clear");
+    #endif
+
+    #if defined(_WIN32) || defined(_WIN64)
+        system("cls");
+    #endif
 }
