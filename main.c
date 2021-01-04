@@ -8,25 +8,92 @@
 //preferences/settings
 #define LiveAmount 10 //defines the player's lives amount
 #define DictFile "Dictionary.txt" //defines the filename
-#define MaxWordLen 26 //defines the maximum word length in the dictionary (n+1)
-#define MaxNameLen 51 //defines the maximum username length (n+1)
+#define MaxWordLen 25 //defines the maximum word length in the dictionary (n+1)
+#define MaxNameLen 10 //defines the maximum username length (n+1)
 
 //function prototype, so we can call them even before it is defined
-void ClearScreen();
 void ReturnToMenu();
-void ToLower(char *str, int len);
 bool FileError(FILE *fp);
 void MergeSort(char (*arr)[MaxWordLen], int min, int max);
+void ToLower(char *str, int len);
+void ClearScreen();
 //global var
 char Name[MaxNameLen];
-
-void Leaderboard()
+struct Leaderboard
 {
-    //just some smiley face
-    /*
-   :D
-    */
+    char name[MaxNameLen];
+    int score;
+};
+
+void Leaderboard(int score)
+{
+    FILE *boardR = fopen("Leaderboard.txt", "r"); // open file to be read
+    
+    int players;
+    fscanf(boardR, "%d", &players);// get number of players in file
+    
+    struct Leaderboard LB[players+1]; // to store information in structure
+    bool OldPlayer = false; // to check if it's new player or not
+    
+    for(int i=0; i<players; i++)
+    {
+        fscanf(boardR, " %[^#]#%d", LB[i].name, &LB[i].score);//scan information
+        if(strcmp(LB[i].name, Name) == 0) // if the player is old
+        {
+            if(LB[i].score<score) LB[i].score = score; // replace score if it's higher
+            OldPlayer = true;// keep track that this is an old player
+        }
+    }
+    
+    if(OldPlayer == false) // if player is new
+    {
+        players++; // add number of players if it's new
+        //store information of new player in struct
+        strcpy(LB[players-1].name, Name);
+        LB[players-1].score = score;
+    }
+    
+    fclose(boardR);// close file
+    
+    //sorting--
+    
+    FILE *boardW = fopen("Leaderboard.txt", "w");// open file to be written
+    
+    fprintf(boardW, "%d", players);// print new number of players in file
+    
+    for(int i=0; i<players; i++)
+    {
+        fprintf(boardW, "\n%s#%d", LB[i].name, LB[i].score);// print all information of players in file
+    }
+    
+    fclose(boardW);// close file
 }
+
+void PrintLeaderboard()
+{
+    ClearScreen();
+    
+    FILE *board = fopen("Leaderboard.txt", "r");// open file to be read
+    
+    int players;
+    if(fscanf(board, "%d", &players) == EOF || players == 0)// get number of players in file
+        printf("There are no players yet\n"); // this will be on the screen if there are no players yet
+    
+    else //if there are at least one player
+    {
+        printf("Leaderboard:\n");
+        for(int i=0; i<players; i++)
+        {
+            char username[MaxNameLen]; int score;
+            fscanf(board, " %[^#]#%d", username, &score);//scan information of players in file
+            printf("%d. %s - %d\n", i+1, username, score);//print information of players on screen
+        }
+    }
+    
+    fclose(board);//close file
+    ReturnToMenu();//prompt the use to press enter to go back to main menu
+}
+
 char GetWord()
 {
     char guess; //to store the guessed char input
@@ -43,6 +110,7 @@ char GetWord()
     }
     return guess; //return the letter input
 }
+
 void PrintHangMan(int lives)
 {
     if(lives == LiveAmount) return; //if player's live is intact, do not print any hangman
@@ -57,6 +125,7 @@ void PrintHangMan(int lives)
     if(percent <= 80) { printf("\n##"); }
     if(percent <= 90) { printf("\n#########\n"); }
 }
+
 int LetterRarity(bool *arr)
 {
     int total = 0; //keep track of the rarity measure
@@ -71,6 +140,7 @@ int LetterRarity(bool *arr)
     for(int i = 0; i < 8; i++) { if(arr[rare[i]-'a']) total += 3; }
     return total; //return final rarity measure
 }
+
 bool RandomizeWord(char* SecretWord)
 {
 	FILE *words = fopen(DictFile, "r"); //open the file
@@ -84,6 +154,17 @@ bool RandomizeWord(char* SecretWord)
 	fscanf(words, "%s", SecretWord); //get the word at RandomIndex, and assign it to the secret word
 	fclose(words); return true; //close the file and returns true(meaning operation success)
 }
+
+void ToLower(char *str, int len)
+{
+    //for every characters in str
+    for (int i = 0; i < len; i++)
+    {
+        //if it is uppercase, then change it to lowercase
+        if(str[i] < 'a') str[i] += ('a'-'A');
+    }
+}
+
 void Game(int round, int TotalScore)
 {
     char SecretWord[MaxWordLen]; //this is the secret word
@@ -158,8 +239,9 @@ void Game(int round, int TotalScore)
         scanf("%*c%*c"); //get the \n characters
         Game(round+1, score); //go the the next round
     }
-    else ReturnToMenu(); //if the game is over, prompt the use to press enter to go back to main menu
+    else {Leaderboard(score); ReturnToMenu();}//if the game is over, insert score to leaderboard and prompt the use to press enter to go back to main menu
 }
+
 void Dictionary()
 {
     FILE *words = fopen(DictFile, "r"); //open the file
@@ -176,6 +258,7 @@ void Dictionary()
 	fclose(words); //close the file
 	ReturnToMenu(); //press enter to go back to main menu
 }
+
 void Credits()
 {
     ClearScreen(); //clear the screen
@@ -186,6 +269,7 @@ void Credits()
     printf("Steven Yanuar Prasetyo Ginting_2440091722\n");
     ReturnToMenu(); //press enter to go back to main menu
 }
+
 void GetName()
 {
     ClearScreen(); //clear the screen
@@ -194,7 +278,7 @@ void GetName()
     while(invalid) //keep prompting if it's still invalid
     {
         //Prompt the User to Input a Name, and put it into the Name Global Variable
-        printf("Insert UserName : "); scanf(" %[^\n]", Name);
+        printf("Insert UserName : "); scanf(" %s", Name);
         //if the name exceeds the max length, output an error message and prompt again
         if(strlen(Name) >= MaxNameLen) { printf("Name must be less %d characters\n", MaxNameLen); continue; }
 
@@ -203,18 +287,19 @@ void GetName()
         {
             //if there is any illegal character, set invalid to true and break
             //number, spaces, and alphabet is fine
-            if((Name[i] < '0' || Name[i] > '9') && Name[i] != ' ' && (Name[i] < 'A' || (Name[i] > 'Z' && Name[i] < 'a') || Name[i] > 'z'))
+            if(Name[i] < '0' || (Name[i] > '9' && Name[i] < 'A') || (Name[i] > 'Z' && Name[i] < 'a') || Name[i] > 'z')
                 { invalid = true; break; }
         }
         //print error message if invalid is true
-        if(invalid) printf("Name must not contain illegal characters\n");
+        if(invalid) printf("Name must not contain spaces or illegal characters\n");
     }
 }
+
 void MainMenu()
 {
     ClearScreen(); //clear the screen
     //print Introduction Message
-    printf("Welcome to Hangman, %s!\n", Name);
+    printf("Welcome to Hangman, %s.\n", Name);
     printf("--------------------------\n");
     //Print all available Menus
     printf("1. Start Game\n");
@@ -235,10 +320,11 @@ void MainMenu()
     //if the user entered 1-5, then call the respective functions
     else if(menu == '1') Game(1, 0);
     else if(menu == '2') Dictionary();
-    else if(menu == '3') Leaderboard();
+    else if(menu == '3') PrintLeaderboard();
     else if(menu == '4') Credits();
     else if(menu == '5') { GetName(); MainMenu(); }
 }
+
 int main()
 {
     GetName(); //prompt user to input their name
@@ -257,21 +343,14 @@ void ClearScreen()
         system("clear");
     #endif
 }
+
 void ReturnToMenu()
 {
     printf("\nPress [Enter] to return\n"); //prompt the user to press enter to go back to main menu
     scanf("%*c%*c"); //get the \n characters
     MainMenu(); //go back to main menu
 }
-void ToLower(char *str, int len)
-{
-    //for every characters in str
-    for (int i = 0; i < len; i++)
-    {
-        //if it is uppercase, then change it to lowercase
-        if(str[i] < 'a') str[i] += ('a'-'A');
-    }
-}
+
 bool FileError(FILE *fp)
 {
     //if file does not exists, close the file, prints an error message, and return true(indicates error)
@@ -290,6 +369,7 @@ bool FileError(FILE *fp)
         else { fclose(fp); printf("\nError : File is Empty\n"); return true; }
     }
 }
+
 void MergeArray(char (*arr)[MaxWordLen], int min, int mid, int max)
 {
     int len1 = mid-min+1, len2 = max-mid; //get the length of the first and second half of the array
@@ -312,6 +392,7 @@ void MergeArray(char (*arr)[MaxWordLen], int min, int mid, int max)
         else strcpy(arr[i], right[y++]);
     }
 }
+
 void MergeSort(char (*arr)[MaxWordLen], int min, int max)
 {
     if(min >= max) return; //if min exceeds max, then return
@@ -322,4 +403,3 @@ void MergeSort(char (*arr)[MaxWordLen], int min, int max)
 
     MergeArray(arr, min, mid, max); //merge and sort that first and second half of the array
 }
-
