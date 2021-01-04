@@ -2,24 +2,23 @@
 #include <stdio.h> //for standard input and output
 #include <stdbool.h> //for boolean variables
 #include <string.h> //for many useful string functions
-#include <stdlib.h> //for system cls
+#include <stdlib.h> //for clear screen functions
 #include <time.h> //to randomize seed based on time
-#include <ctype.h> //to classify (and transform) individual characters
 
 //preferences/settings
 #define LiveAmount 10 //defines the player's lives amount
 #define DictFile "Dictionary.txt" //defines the filename
 #define MaxWordLen 25 //defines the maximum word length in the dictionary (n+1)
+#define MaxNameLen 10 //defines the maximum username length (n+1)
 
 //function prototype, so we can call them even before it is defined
 void ReturnToMenu();
 bool FileError(FILE *fp);
 void MergeSort(char (*arr)[MaxWordLen], int min, int max);
-char *strToLower(char cString[]);
-void clear();
-
+void ToLower(char *str, int len);
+void ClearScreen();
 //global var
-char name[100];
+char Name[MaxNameLen];
 
 void Leaderboard()
 {
@@ -50,13 +49,13 @@ void PrintHangMan(int lives)
     int percent = lives*100/LiveAmount; //count the lives percentage
 
     //print the hangman based on the player's lives current status
-    if(percent <= 70) printf("#######\n");
-    if(percent <= 80) printf("##"); if(percent <= 60) printf("   |");
-    if(percent <= 80) printf("\n##"); if(percent <= 50) printf("   @");
-    if(percent <= 80) printf("\n##"); if(percent <= 40) printf("  /"); if(percent <= 30) printf("|"); if(percent <= 20) printf("\\");
-    if(percent <= 80) printf("\n##"); if(percent <= 10) printf("  /"); if(percent <= 0) printf(" \\");
-    if(percent <= 80) printf("\n##");
-    if(percent <= 90) printf("\n#########\n");
+    if(percent <= 70) { printf("#######\n"); }
+    if(percent <= 80) { printf("##"); } if(percent <= 60) { printf("   |"); }
+    if(percent <= 80) { printf("\n##"); } if(percent <= 50) { printf("   @"); }
+    if(percent <= 80) { printf("\n##"); } if(percent <= 40) { printf("  /"); } if(percent <= 30) { printf("|"); } if(percent <= 20) { printf("\\"); }
+    if(percent <= 80) { printf("\n##"); } if(percent <= 10) { printf("  /"); } if(percent <= 0) { printf(" \\"); }
+    if(percent <= 80) { printf("\n##"); }
+    if(percent <= 90) { printf("\n#########\n"); }
 }
 int LetterRarity(bool *arr)
 {
@@ -85,23 +84,21 @@ bool RandomizeWord(char* SecretWord)
 	fscanf(words, "%s", SecretWord); //get the word at RandomIndex, and assign it to the secret word
 	fclose(words); return true; //close the file and returns true(meaning operation success)
 }
-
-char *strToLower(char cString[]) {
-    // Declarations
-    int iTeller;
-
-    for (iTeller = 0; cString[iTeller] != '\0'; iTeller++)
-        cString[iTeller] = (char)tolower(cString[iTeller]);
-
-    return cString;
+void ToLower(char *str, int len)
+{
+    //for every characters in str
+    for (int i = 0; i < len; i++)
+    {
+        //if it is uppercase, then change it to lowercase
+        if(str[i] < 'a') str[i] += ('a'-'A');
+    }
 }
-
 void Game(int round, int TotalScore)
 {
     char SecretWord[MaxWordLen]; //this is the secret word
     if(!RandomizeWord(SecretWord)) return; //Randomize The Secret Word, but return if file operation failed
-    strcpy(SecretWord, strToLower(SecretWord)); //make sure all characters are lowercase
     int len = strlen(SecretWord); //get the length of the word
+    ToLower(SecretWord, len); //make sure all characters are lowercase
 
     char Revealed[len+1]; //make the string to hide the word
     for(int i = 0; i < len; i++) { Revealed[i] = '_'; } Revealed[len] = '\0'; //set the hidden characters to '_'
@@ -118,7 +115,7 @@ void Game(int round, int TotalScore)
 
     while(true) //keep looping until the game is over
     {
-        clear(); //clear the screen
+        ClearScreen(); //clear the screen
         //if the letter was already guessed before, or if it's the wrong letter,
         //print a message, decrease the lives, and make sure the lives won't go below 0
         //else if the player have guessed, and the guess is right, just print a message
@@ -174,15 +171,15 @@ void Game(int round, int TotalScore)
 }
 void Dictionary()
 {
-  FILE *words = fopen(DictFile, "r"); //open the file
-  if(FileError(words)) return; //returns false if file operation failed
+    FILE *words = fopen(DictFile, "r"); //open the file
+    if(FileError(words)) return; //returns false if file operation failed
 	int WordCount; fscanf(words, "%d", &WordCount); //Get the number of words in the file
 	char Dict[WordCount][MaxWordLen]; //store all the words from dictionary to be sorted
 
 	for(int i = 0; i < WordCount; i++) fscanf(words, "%s", Dict[i]); //read all word input and store them
 	MergeSort(Dict, 0, WordCount-1); //sort all words alphabetically (ascending from a to z)
 
-	clear(); //clear the screen
+	ClearScreen(); //clear the screen
 	printf("Word Dictionary List :\n"); //prints title
 	for (int i = 0; i < WordCount; i++) printf("%d. %s\n", i+1, Dict[i]); //prints all words from the dictionary
 	fclose(words); //close the file
@@ -190,7 +187,7 @@ void Dictionary()
 }
 void Credits()
 {
-    clear(); //clear the screen
+    ClearScreen(); //clear the screen
     printf("Made By :\n"); //Show the Creators of the app
     printf("Abid Rakhmansyah_2440077081\n");
     printf("Ardli Fadhillah Wangsaatmaja_2440029990\n");
@@ -198,74 +195,77 @@ void Credits()
     printf("Steven Yanuar Prasetyo Ginting_2440091722\n");
     ReturnToMenu(); //press enter to go back to main menu
 }
+void GetName()
+{
+    ClearScreen(); //clear the screen
+    bool invalid = true; //to determine whether or not the name is valid, default it to true
 
-//Clear Screen
-void clear(){
-    #if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
-        system("clear");
-    #endif
+    while(invalid) //keep prompting if it's still invalid
+    {
+        //Prompt the User to Input a Name, and put it into the Name Global Variable
+        printf("Insert UserName : "); scanf(" %[^\n]", Name);
+        //if the name exceeds the max length, output an error message and prompt again
+        if(strlen(Name) >= MaxNameLen) { printf("Name must be less %d characters\n", MaxNameLen); continue; }
 
-    #if defined(_WIN32) || defined(_WIN64)
-        clear();
-    #endif
+        invalid = false; //set invalid to false(assume it's valid)
+        for(int i = 0; i < strlen(Name); i++) //iterate through all chars in the Name string
+        {
+            //if there is any illegal character, set invalid to true and break
+            //number, spaces, and alphabet is fine
+            if((Name[i] < '0' || Name[i] > '9') && Name[i] != ' ' && (Name[i] < 'A' || (Name[i] > 'Z' && Name[i] < 'a') || Name[i] > 'z'))
+                { invalid = true; break; }
+        }
+        //print error message if invalid is true
+        if(invalid) printf("Name must not contain illegal characters\n");
+    }
 }
-
 void MainMenu()
 {
-    clear(); //clear the screen
+    ClearScreen(); //clear the screen
     //print Introduction Message
-    printf("Welcome to Hangman, %s\n", name);
+    printf("Welcome to Hangman, %s.\n", Name);
     printf("--------------------------\n");
     //Print all available Menus
     printf("1. Start Game\n");
     printf("2. Dictionary\n");
     printf("3. Leaderboard\n");
     printf("4. Credits\n");
+    printf("5. Change Name\n");
     printf("0. Exit\n");
 
     char menu = '\0'; //to store what number the user entered
-    while(menu < '0' || menu > '4') //keep prompting until the user entered a number from 0-4
+    while(menu < '0' || menu > '5') //keep prompting until the user entered a number from 0-5
     {
         printf(">> "); scanf(" %c", &menu); //prompt the user to Input a number to enter one of the menus
-        if(menu < '0' || menu > '4') printf("Please Input 0-4\n"); //Print an error message if the user entered invalid input
+        if(menu < '0' || menu > '5') printf("Please Input 0-4\n"); //Print an error message if the user entered invalid input
     }
 
     if(menu == '0') return; //if the user entered 0, terminate the function (and the program)
-    //if the user entered 1-4, then call the respective functions
+    //if the user entered 1-5, then call the respective functions
     else if(menu == '1') Game(1, 0);
     else if(menu == '2') Dictionary();
     else if(menu == '3') Leaderboard();
     else if(menu == '4') Credits();
+    else if(menu == '5') { GetName(); MainMenu(); }
 }
-
-void checkName()
-{
-  bool isValid = false;
-  int num;
-  //Input Name
-  do{
-      num = 0;
-      printf("\nYour name : ");
-      scanf(" %[^\n]", name);
-
-      int length = strlen(name);
-
-      for(int i=0;i<length;i++){
-          if(isdigit(name[i])!=0) num++;
-      }
-
-  }while(num>0);
-
-}
-
 int main()
 {
-    checkName(); //checkName
+    GetName(); //prompt user to input their name
     MainMenu(); //show Main menu
     return 0; //terminate program
 }
 
 //Utilities
+void ClearScreen()
+{
+    //if the program is running in windows, use system cls
+    #if defined(_WIN32) || defined(_WIN64)
+        system("cls");
+    //but, if it's running in linux, unix, or apple, use system clear
+    #elif defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+        system("clear");
+    #endif
+}
 void ReturnToMenu()
 {
     printf("\nPress [Enter] to return\n"); //prompt the user to press enter to go back to main menu
@@ -322,3 +322,4 @@ void MergeSort(char (*arr)[MaxWordLen], int min, int max)
 
     MergeArray(arr, min, mid, max); //merge and sort that first and second half of the array
 }
+
