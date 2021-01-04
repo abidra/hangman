@@ -8,15 +8,15 @@
 //preferences/settings
 #define LiveAmount 10 //defines the player's lives amount
 #define DictFile "Dictionary.txt" //defines the filename
-#define MaxWordLen 25 //defines the maximum word length in the dictionary (n+1)
-#define MaxNameLen 10 //defines the maximum username length (n+1)
+#define MaxWordLen 26 //defines the maximum word length in the dictionary (n+1)
+#define MaxNameLen 51 //defines the maximum username length (n+1)
 
 //function prototype, so we can call them even before it is defined
+void ClearScreen();
 void ReturnToMenu();
+void ToLower(char *str, int len);
 bool FileError(FILE *fp);
 void MergeSort(char (*arr)[MaxWordLen], int min, int max);
-void ToLower(char *str, int len);
-void ClearScreen();
 //global var
 char Name[MaxNameLen];
 
@@ -83,15 +83,6 @@ bool RandomizeWord(char* SecretWord)
 
 	fscanf(words, "%s", SecretWord); //get the word at RandomIndex, and assign it to the secret word
 	fclose(words); return true; //close the file and returns true(meaning operation success)
-}
-void ToLower(char *str, int len)
-{
-    //for every characters in str
-    for (int i = 0; i < len; i++)
-    {
-        //if it is uppercase, then change it to lowercase
-        if(str[i] < 'a') str[i] += ('a'-'A');
-    }
 }
 void Game(int round, int TotalScore)
 {
@@ -271,6 +262,15 @@ void ReturnToMenu()
     printf("\nPress [Enter] to return\n"); //prompt the user to press enter to go back to main menu
     scanf("%*c%*c"); //get the \n characters
     MainMenu(); //go back to main menu
+}
+void ToLower(char *str, int len)
+{
+    //for every characters in str
+    for (int i = 0; i < len; i++)
+    {
+        //if it is uppercase, then change it to lowercase
+        if(str[i] < 'a') str[i] += ('a'-'A');
+    }
 }
 bool FileError(FILE *fp)
 {
