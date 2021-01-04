@@ -36,7 +36,7 @@ void SaveScore(int score)
         fprintf(ScoreFile, "1\n"); //insert 1 as the number of scores
         fprintf(ScoreFile, "%s %d\n", Name, score); //insert player's name and the score to the file
         fclose(ScoreFile); //close the file pointer
-        return;
+        return; //and return
     }
 
     int DataCount; fscanf(ScoreFile, "%d", &DataCount); //get the number of data in the file
@@ -60,7 +60,7 @@ void SaveScore(int score)
         LB[DataCount].score = score;
         DataCount++; //increase the number of data
     }
-    fclose(ScoreFile); //close file
+    fclose(ScoreFile); //close the file
 
     //sort data--
 
@@ -70,7 +70,7 @@ void SaveScore(int score)
     for(int i = 0; i < DataCount; i++) //iterate through all the data
         fprintf(ScoreFile, "%s %d\n", LB[i].name, LB[i].score); //insert name and score data into the file
 
-    fclose(ScoreFile); //close file
+    fclose(ScoreFile); //close the file
 }
 char GetWord()
 {
@@ -272,7 +272,7 @@ void GetName()
         for(int i = 0; i < strlen(Name); i++) //iterate through all chars in the Name string
         {
             //if there is any illegal character, set invalid to true and break
-            //alphabeta, numbers, and underscore is fine
+            //alphabets, numbers, and underscore is fine
             if(Name[i] != '_' && (Name[i] < '0' || (Name[i] > '9' && Name[i] < 'A') || (Name[i] > 'Z' && Name[i] < 'a') || Name[i] > 'z'))
                 { invalid = true; break; }
         }
