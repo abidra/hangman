@@ -278,7 +278,7 @@ void GetName()
     while(invalid) //keep prompting if it's still invalid
     {
         //Prompt the User to Input a Name, and put it into the Name Global Variable
-        printf("Insert UserName : "); scanf(" %s", Name);
+        printf("Insert UserName : "); scanf(" %[^\n]", Name);
         //if the name exceeds the max length, output an error message and prompt again
         if(strlen(Name) >= MaxNameLen) { printf("Name must be less %d characters\n", MaxNameLen); continue; }
 
