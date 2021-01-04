@@ -235,11 +235,11 @@ void PrintLeaderboard()
     {
         int DataCount; fscanf(ScoreFile, "%d", &DataCount); //get the number of data in the file
         printf("Leaderboard:\n"); //print header
-        for(int i = 0; i < DataCount; i++) //iterate through all the data in the file
+        for(int i = 1; i <= DataCount; i++) //iterate through all the data in the file
         {
             char UserName[MaxNameLen]; int Score; //variables to store the username and the score
             fscanf(ScoreFile, "%s%d", UserName, &Score); //assign username and score data into that variables
-            printf("%d. %s - %d\n", i+1, UserName, Score); //print data stored in that variables into the console
+            printf("%d. %s - %d\n", i, UserName, Score); //print data stored in that variables into the console
         }
     }
 
