@@ -223,7 +223,7 @@ void MainMenu()
 {
     ClearScreen(); //clear the screen
     //print Introduction Message
-    printf("Welcome to Hangman, %s.\n", Name);
+    printf("Welcome to Hangman, %s!\n", Name);
     printf("--------------------------\n");
     //Print all available Menus
     printf("1. Start Game\n");
