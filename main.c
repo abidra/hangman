@@ -32,6 +32,7 @@ void ReturnToMenu();
 void ToLower(char *str, int len);
 bool FileError(FILE *fp);
 void MergeSort(Dictionary *data, int min, int max);
+void MergeSortScore(Leaderboard *data, int min, int max);
 
 void SaveScore(int score)
 {
@@ -70,7 +71,7 @@ void SaveScore(int score)
     }
     fclose(ScoreFile); //close the file
 
-    //sort data--
+    MergeSortScore(LB, 0, DataCount-1); //sort the score after saving nwe data
 
     ScoreFile = fopen(LeadFile, "w"); //open score file for writing
     fprintf(ScoreFile, "%d\n", DataCount); //insert new number of data in the file
@@ -443,4 +444,35 @@ void AddNewWords()
         fprintf(words, "%s %d\n", Dict[i].word, Dict[i].unlocked); //insert all the data back into the file
     fclose(words); //close the file
 }
+void MergeArrayScore(Leaderboard *data, int min, int mid, int max)
+{
+    int len1 = mid-min+1, len2 = max-mid; //get the length of the first and second half of the array
+    //make a temporary array to store the first and the second half of the array
+    Leaderboard left[len1], right[len2];
+    for(int i = 0; i < len1; i++) left[i] = data[min+i]; //copy the first half of the array to the left array
+    for(int i = 0; i < len2; i++) right[i] = data[mid+1+i]; //copy the second half of the array to the right array
 
+    int x = 0, y = 0; //set the starting index for the left array and the right array
+    for(int i = min; i <= max; i++) //iterate from the min until max index from the original array
+    {
+        //if there are no more elements in the left/right array,
+        //copy data from the other array to the merged array, increment that array's index, then continue
+        if(x >= len1) { data[i] = right[y++]; continue; }
+        else if(y >= len2) { data[i] = left[x++]; continue; }
+
+        //if there are still some elements on both of the arrays,
+        //compare the scores, and copy the data with the smaller string (alphabetically) to the merged array
+        if(left[x].score < right[y].score) data[i] = left[x++];
+        else data[i] = right[y++];
+    }
+}
+void MergeSortScore(Leaderboard *data, int min, int max)
+{
+    if(min >= max) return; //if min exceeds max, then return
+
+    int mid = ((max-min)/2)+min; //get the middle point of max and min
+    MergeSortScore(data, min, mid); //divide and sort the first half of the array
+    MergeSortScore(data, mid+1, max); //divide and sort the second half of the array
+
+    MergeArrayScore(data, min, mid, max); //merge and sort that first and second half of the array
+}
