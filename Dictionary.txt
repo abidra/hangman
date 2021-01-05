@@ -1,201 +1,201 @@
 200
-destruction
-mastermind
-sweater
-relate
-return
-frame
-fight
-missile
-cheese
-reverse
-publish
-exoskeleton
-pride
-movies
-notification
-fashion
-system
-abstract
-ordinary
-witch
-global
-attractive
-wedding
-necklace
-xylophone
-tower
-bullet
-particle
-officer
-spring
-recycle
-twist
-legend
-understand
-impact
-available
-structure
-suffer
-technology
-effective
-beneficial
-growth
-underwater
-borrow
-kingdom
-organisation
-performance
-neighbour
-lonely
-knowledge
-excavation
-halloween
-cannon
-behaviour
-zombie
-civilian
-infection
-confess
-friendly
-encourage
-promise
-visible
-kitten
-pursuit
-bulldozer
-graduate
-embarrassed
-spider
-needle
-variable
-demonstrate
-format
-driver
-aspect
-copyright
-agency
-outline
-acquire
-paradox
-forget
-creepy
-formula
-force
-telescope
-knock
-limit
-garden
-program
-trust
-violation
-deadly
-indirect
-devotion
-semicolon
-emotion
-combination
-amusing
-fairy
-struggle
-entertainment
-galaxy
-right
-tycoon
-internal
-broken
-scale
-velvet
-expect
-clear
-whisper
-ultimate
-arise
-emergency
-perfume
-dominant
-journal
-crash
-domestic
-consumer
-breakdown
-hostile
-different
-source
-marathon
-gratidute
-marriage
-solution
-average
-giant
-mobile
-resign
-attachment
-indoor
-mushroom
-heavy
-circulation
-reaction
-qualified
-professor
-parallel
-fascinate
-report
-figure
-trolley
-queen
-responsible
-manager
-deserve
-context
-dozen
-enjoy
-objective
-happen
-hilarious
-ideal
-evolution
-inhabitant
-torture
-intensify
-center
-therapy
-reject
-transform
-jellyfish
-worth
-please
-valid
-horrific
-confuse
-asset
-science
-terms
-impulse
-sound
-direct
-depression
-password
-magnetic
-restriction
-apple
-brilliant
-random
-superior
-radical
-universe
-admire
-waterfall
-volleyball
-stroke
-brain
-routine
-narrative
-young
-lighter
-training
-healthy
-dragon
-space
-month
-conductor
+destruction 0
+mastermind 0
+sweater 0
+relate 0
+return 0
+frame 0
+fight 0
+missile 0
+cheese 0
+reverse 0
+publish 0
+exoskeleton 0
+pride 0
+movies 0
+notification 0
+fashion 0
+system 0
+abstract 0
+ordinary 0
+witch 0
+global 0
+attractive 0
+wedding 0
+necklace 0
+xylophone 0
+tower 0
+bullet 0
+particle 0
+officer 0
+spring 0
+recycle 0
+twist 0
+legend 0
+understand 0
+impact 0
+available 0
+structure 0
+suffer 0
+technology 0
+effective 0
+beneficial 0
+growth 0
+underwater 0
+borrow 0
+kingdom 0
+organisation 0
+performance 0
+neighbour 0
+lonely 0
+knowledge 0
+excavation 0
+halloween 0
+cannon 0
+behaviour 0
+zombie 0
+civilian 0
+infection 0
+confess 0
+friendly 0
+encourage 0
+promise 0
+visible 0
+kitten 0
+pursuit 0
+bulldozer 0
+graduate 0
+embarrassed 0
+spider 0
+needle 0
+variable 0
+demonstrate 0
+format 0
+driver 0
+aspect 0
+copyright 0
+agency 0
+outline 0
+acquire 0
+paradox 0
+forget 0
+creepy 0
+formula 0
+force 0
+telescope 0
+knock 0
+limit 0
+garden 0
+program 0
+trust 0
+violation 0
+deadly 0
+indirect 0
+devotion 0
+semicolon 0
+emotion 0
+combination 0
+amusing 0
+fairy 0
+struggle 0
+entertainment 0
+galaxy 0
+right 0
+tycoon 0
+internal 0
+broken 0
+scale 0
+velvet 0
+expect 0
+clear 0
+whisper 0
+ultimate 0
+arise 0
+emergency 0
+perfume 0
+dominant 0
+journal 0
+crash 0
+domestic 0
+consumer 0
+breakdown 0
+hostile 0
+different 0
+source 0
+marathon 0
+gratidute 0
+marriage 0
+solution 0
+average 0
+giant 0
+mobile 0
+resign 0
+attachment 0
+indoor 0
+mushroom 0
+heavy 0
+circulation 0
+reaction 0
+qualified 0
+professor 0
+parallel 0
+fascinate 0
+report 0
+figure 0
+trolley 0
+queen 0
+responsible 0
+manager 0
+deserve 0
+context 0
+dozen 0
+enjoy 0
+objective 0
+happen 0
+hilarious 0
+ideal 0
+evolution 0
+inhabitant 0
+torture 0
+intensify 0
+center 0
+therapy 0
+reject 0
+transform 0
+jellyfish 0
+worth 0
+please 0
+valid 0
+horrific 0
+confuse 0
+asset 0
+science 0
+terms 0
+impulse 0
+sound 0
+direct 0
+depression 0
+password 0
+magnetic 0
+restriction 0
+apple 0
+brilliant 0
+random 0
+superior 0
+radical 0
+universe 0
+admire 0
+waterfall 0
+volleyball 0
+stroke 0
+brain 0
+routine 0
+narrative 0
+young 0
+lighter 0
+training 0
+healthy 0
+dragon 0
+space 0
+month 0
+conductor 0
