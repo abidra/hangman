@@ -290,9 +290,9 @@ void GetName()
     while(invalid) //keep prompting if it's still invalid
     {
         //Prompt the User to Input a Name, and put it into the Name Global Variable
-        printf("Insert UserName : "); scanf(" %[^\n]", Name);
+        printf("Your Username : "); scanf(" %[^\n]", Name);
         //if the name exceeds the max length, output an error message and prompt again
-        if(strlen(Name) >= MaxNameLen) { printf("Name must be less %d characters\n", MaxNameLen); continue; }
+        if(strlen(Name) >= MaxNameLen) { printf("Username must be less than %d characters\n", MaxNameLen); continue; }
 
         invalid = false; //set invalid to false(assume it's valid)
         for(int i = 0; i < strlen(Name); i++) //iterate through all chars in the Name string
@@ -303,7 +303,7 @@ void GetName()
                 { invalid = true; break; }
         }
         //print error message if invalid is true
-        if(invalid) printf("Name can only contain letters, numbers, and underscore\n");
+        if(invalid) printf("Name can only contain letters, numbers, or underscore\n");
     }
 }
 void MainMenu()
@@ -502,4 +502,3 @@ int BinerSearch(Leaderboard *data, int min, int max)
     }
     return -1; //if min is already larger than max, meaning the name is not found, then return -1
 }
-
