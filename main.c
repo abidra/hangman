@@ -7,32 +7,40 @@
 
 //preferences/settings
 #define LiveAmount 10 //defines the player's lives amount
-#define DictFile "Dictionary.txt" //defines the filename
+#define BaseScore 20 //defines the base minimum score each round
+#define DictFile "Dictionary.txt" //defines the filename for dictionary
+#define LeadFile "Leaderboard.txt" //defines the filename for leaderboard
 #define MaxWordLen 26 //defines the maximum word length in the dictionary (n+1)
 #define MaxNameLen 51 //defines the maximum username length (n+1)
+
+//global var
+char Name[MaxNameLen];
+typedef struct
+{
+    char word[MaxWordLen];
+    bool unlocked;
+} Dictionary;
+typedef struct
+{
+    char name[MaxNameLen];
+    int score;
+} Leaderboard;
 
 //function prototype, so we can call them even before it is defined
 void ClearScreen();
 void ReturnToMenu();
 void ToLower(char *str, int len);
 bool FileError(FILE *fp);
-void MergeSort(char (*arr)[MaxWordLen], int min, int max);
-//global var
-char Name[MaxNameLen];
-struct Leaderboard
-{
-    char name[MaxNameLen];
-    int score;
-};
+void MergeSort(Dictionary *data, int min, int max);
 
 void SaveScore(int score)
 {
-    FILE *ScoreFile = fopen("Leaderboard.txt", "r"); //open score file for reading
+    FILE *ScoreFile = fopen(LeadFile, "r"); //open score file for reading
 
     if(FileError(ScoreFile)) //if file does not exist or if it's empty
     {
         fclose(ScoreFile); //close the file pointer
-        ScoreFile = fopen("Leaderboard.txt", "w"); //and create a new file (or open the empty file for writing)
+        ScoreFile = fopen(LeadFile, "w"); //and create a new file (or open the empty file for writing)
         fprintf(ScoreFile, "1\n"); //insert 1 as the number of scores
         fprintf(ScoreFile, "%s %d\n", Name, score); //insert player's name and the score to the file
         fclose(ScoreFile); //close the file pointer
@@ -40,7 +48,7 @@ void SaveScore(int score)
     }
 
     int DataCount; fscanf(ScoreFile, "%d", &DataCount); //get the number of data in the file
-    struct Leaderboard LB[DataCount+1]; //to store user and score data
+    Leaderboard LB[DataCount+1]; //to store user and score data
     //length is data count + 1 so we can insert the new data
     bool UserExist = false; //to determine if it's a new player or not
 
@@ -64,7 +72,7 @@ void SaveScore(int score)
 
     //sort data--
 
-    ScoreFile = fopen("Leaderboard.txt", "w"); //open score file for writing
+    ScoreFile = fopen(LeadFile, "w"); //open score file for writing
     fprintf(ScoreFile, "%d\n", DataCount); //insert new number of data in the file
 
     for(int i = 0; i < DataCount; i++) //iterate through all the data
@@ -72,7 +80,7 @@ void SaveScore(int score)
 
     fclose(ScoreFile); //close the file
 }
-char GetWord()
+char GetLetter()
 {
     char guess; //to store the guessed char input
     bool invalid = true; //to determine whether or not the input is valid
@@ -118,17 +126,26 @@ int LetterRarity(bool *arr)
 }
 bool RandomizeWord(char* SecretWord)
 {
-	FILE *words = fopen(DictFile, "r"); //open the file
-	//if file operation failed, print an error message and return false
-	if(FileError(words)) { printf("\nError : File Does Not Exist or is Empty\n"); return false; }
+    FILE *words = fopen(DictFile, "r"); //open the file
+    //if file operation failed, print an error message and return false
+    if(FileError(words)) { printf("\nError : File Does Not Exist or is Empty\n"); return false; }
 
-	int WordCount; fscanf(words, "%d", &WordCount); //Get the number of words in the file
-	srand(time(0)); //pick a seed based on time
-	int RandomIndex = (rand() % (WordCount-1+1))+1; //randomize a num based on the formula : (rand()%(max–min+1))+min
-	for(int i = 1; i < RandomIndex; i++) fscanf(words, "%*s"); //ignores the first RandomIndex-1 words from the file
+    int WordCount; fscanf(words, "%d", &WordCount); //Get the number of words in the file
+    Dictionary Dict[WordCount]; //to store all the word data from dictionary
+    for(int i = 0; i < WordCount; i++) 	//read all word data and store them
+    { int temp; fscanf(words, "%s%d", Dict[i].word, &temp); Dict[i].unlocked = temp; }
 
-	fscanf(words, "%s", SecretWord); //get the word at RandomIndex, and assign it to the secret word
-	fclose(words); return true; //close the file and returns true(meaning operation success)
+    srand(time(0)); //pick a seed based on time
+    int RandIndex = (rand() % (WordCount-1+1))+1; //randomize a num based on the formula : (rand()%(max–min+1))+min
+    Dict[RandIndex-1].unlocked = true; //change the unlocked bool of the chosen word to true
+    fclose(words); words = fopen(DictFile, "w"); //close and reopen the file for writing
+
+    fprintf(words, "%d\n", WordCount); //insert new number of data in the file
+    for(int i = 0; i < WordCount; i++) //iterate through all the data
+        fprintf(words, "%s %d\n", Dict[i].word, Dict[i].unlocked); //insert all the data back into the file
+
+    strcpy(SecretWord, Dict[RandIndex-1].word); //assign the word at RandomIndex into the secret word
+    fclose(words); return true; //close the file and returns true(meaning operation success)
 }
 void Game(int round, int TotalScore)
 {
@@ -175,7 +192,7 @@ void Game(int round, int TotalScore)
 
         printf("\nRemaining Lives : %d\n", lives); //show the player's lives
         if(strcmp(SecretWord, Revealed) == 0 || lives == 0) break; //if the word has been revealed, break
-        char guess = GetWord(); //to store the guessed char input
+        char guess = GetLetter(); //to store the guessed char input
         if(guess < 'a') guess += ('a'-'A'); //make sure the letter is lowercase
 
         //if the letter was already guessed before, set the guessed bool to true,
@@ -195,7 +212,7 @@ void Game(int round, int TotalScore)
     //prints win/lose message based on the number of lives
     printf("\nYou %s The secret word was %s.\n", lives > 0 ? "win!" : "lose...", SecretWord);
     //calculate score based on the word difficulty and the number of lives
-    int score = TotalScore + (difficulty * lives);
+    int score = TotalScore + (BaseScore + (difficulty * lives));
     //prints the current score if the game is not over, or print final score if the game is over
     printf("%s Score is : %d\n", lives > 0 ? "Current" : "Final", score);
     if(lives > 0) //if the game is not over
@@ -207,27 +224,36 @@ void Game(int round, int TotalScore)
     //if the game is over, insert score to leaderboard and prompt the user to press enter to go back to main menu
     else { SaveScore(score); ReturnToMenu(); }
 }
-void Dictionary()
+void PrintDictionary()
 {
     FILE *words = fopen(DictFile, "r"); //open the file
     //if file operation failed, print an error message and return
     if(FileError(words)) { printf("\nError : File Does Not Exist or is Empty\n"); return; }
-	int WordCount; fscanf(words, "%d", &WordCount); //Get the number of words in the file
-	char Dict[WordCount][MaxWordLen]; //store all the words from dictionary to be sorted
+    int WordCount; fscanf(words, "%d", &WordCount); //Get the number of words in the file
+    Dictionary Dict[WordCount]; //to store all the word data from dictionary to be sorted
 
-	for(int i = 0; i < WordCount; i++) fscanf(words, "%s", Dict[i]); //read all word input and store them
-	MergeSort(Dict, 0, WordCount-1); //sort all words alphabetically (ascending from a to z)
+    for(int i = 0; i < WordCount; i++) 	//read all word data and store them
+    { int temp; fscanf(words, "%s%d", Dict[i].word, &temp); Dict[i].unlocked = temp; }
+    MergeSort(Dict, 0, WordCount-1); //sort all words alphabetically (ascending from a to z)
 
-	ClearScreen(); //clear the screen
-	printf("Word Dictionary List :\n"); //prints title
-	for (int i = 0; i < WordCount; i++) printf("%d. %s\n", i+1, Dict[i]); //prints all words from the dictionary
-	fclose(words); //close the file
-	ReturnToMenu(); //press enter to go back to main menu
+    ClearScreen(); //clear the screen
+    printf("Word Dictionary List :\n"); //prints title
+    int PrintedCount = 0; //keep track of how many words have been printed
+    for (int i = 0; i < WordCount; i++)
+    {
+        //if the word is unlocked
+        if(Dict[i].unlocked) //add PrintedCount and print the word from the dictionary
+        { PrintedCount++; printf("%d. %s\n", PrintedCount, Dict[i].word); }
+    }
+    if(PrintedCount == 0) printf("[none]\n"); //if no word have been discovered, print none
+    printf("\n%d more words to be discovered!\n", WordCount-PrintedCount); //print how many words needs to be discovered
+    fclose(words); //close the file
+    ReturnToMenu(); //press enter to go back to main menu
 }
 void PrintLeaderboard()
 {
     ClearScreen(); //clear the screen
-    FILE *ScoreFile = fopen("Leaderboard.txt", "r"); //open score file for reading
+    FILE *ScoreFile = fopen(LeadFile, "r"); //open score file for reading
 
     //if file does not exist or if it's empty, print no score message
     if(FileError(ScoreFile)) printf("There are no scores yet\n");
@@ -304,7 +330,7 @@ void MainMenu()
     if(menu == '0') return; //if the user entered 0, terminate the function (and the program)
     //if the user entered 1-5, then call the respective functions
     else if(menu == '1') Game(1, 0);
-    else if(menu == '2') Dictionary();
+    else if(menu == '2') PrintDictionary();
     else if(menu == '3') PrintLeaderboard();
     else if(menu == '4') Credits();
     else if(menu == '5') { GetName(); MainMenu(); }
@@ -360,36 +386,61 @@ bool FileError(FILE *fp)
         else { fclose(fp); return true; }
     }
 }
-void MergeArray(char (*arr)[MaxWordLen], int min, int mid, int max)
+void MergeArray(Dictionary *data, int min, int mid, int max)
 {
     int len1 = mid-min+1, len2 = max-mid; //get the length of the first and second half of the array
     //make a temporary array to store the first and the second half of the array
-    char left[len1][MaxWordLen], right[len2][MaxWordLen];
-    for(int i = 0; i < len1; i++) strcpy(left[i], arr[min+i]); //copy the first half of the array to the left array
-    for(int i = 0; i < len2; i++) strcpy(right[i], arr[mid+1+i]); //copy the first half of the array to the right array
+    Dictionary left[len1], right[len2];
+    for(int i = 0; i < len1; i++) left[i] = data[min+i]; //copy the first half of the array to the left array
+    for(int i = 0; i < len2; i++) right[i] = data[mid+1+i]; //copy the second half of the array to the right array
 
     int x = 0, y = 0; //set the starting index for the left array and the right array
     for(int i = min; i <= max; i++) //iterate from the min until max index from the original array
     {
         //if there are no more elements in the left/right array,
-        //copy string from the other array to the merged array, increment that array's index, then continue
-        if(x >= len1) { strcpy(arr[i], right[y++]); continue; }
-        else if(y >= len2) { strcpy(arr[i], left[x++]); continue; }
+        //copy data from the other array to the merged array, increment that array's index, then continue
+        if(x >= len1) { data[i] = right[y++]; continue; }
+        else if(y >= len2) { data[i] = left[x++]; continue; }
 
         //if there are still some elements on both of the arrays,
-        //compare the strings, and copy the smaller element(alphabetically) to the merged array
-        if(strcmp(left[x], right[y]) < 0) strcpy(arr[i], left[x++]);
-        else strcpy(arr[i], right[y++]);
+        //compare the strings, and copy the data with the smaller string (alphabetically) to the merged array
+        if(strcmp(left[x].word, right[y].word) < 0) data[i] = left[x++];
+        else data[i] = right[y++];
     }
 }
-void MergeSort(char (*arr)[MaxWordLen], int min, int max)
+void MergeSort(Dictionary *data, int min, int max)
 {
     if(min >= max) return; //if min exceeds max, then return
 
     int mid = ((max-min)/2)+min; //get the middle point of max and min
-    MergeSort(arr, min, mid); //divide and sort the first half of the array
-    MergeSort(arr, mid+1, max); //divide and sort the second half of the array
+    MergeSort(data, min, mid); //divide and sort the first half of the array
+    MergeSort(data, mid+1, max); //divide and sort the second half of the array
 
-    MergeArray(arr, min, mid, max); //merge and sort that first and second half of the array
+    MergeArray(data, min, mid, max); //merge and sort that first and second half of the array
+}
+void AddNewWords()
+{
+    //instruction : insert new words at the end of the dictionary file
+    //at the beginning of file, add a new number after the wordcount, which is the number of the new words added
+    //then, call this function in runtime
+    FILE *words = fopen(DictFile, "r"); //open the file for reading
+    //if file operation failed, print an error message and return
+    if(FileError(words)) { printf("\nError : File Does Not Exist or is Empty\n"); return; }
+    //Get the number of words and new words in the file
+    int WordCount, NewWordCount; fscanf(words, "%d%d", &WordCount, &NewWordCount);
+    int TotalCount = WordCount + NewWordCount; //get the total count
+    Dictionary Dict[TotalCount]; //store all the data from dictionary
+
+    //read all word and int input and store them
+    for(int i = 0; i < WordCount; i++)
+    { int temp; fscanf(words, "%s%d", Dict[i].word, &temp); Dict[i].unlocked = temp; }
+    //read all new word input and store them, set the unlocked state to false
+    for(int i = WordCount; i < TotalCount; i++) { fscanf(words, "%s", Dict[i].word); Dict[i].unlocked = false; }
+    fclose(words); words = fopen(DictFile, "w"); //close and reopen the file for writing
+
+    fprintf(words, "%d\n", TotalCount); //insert new number of data in the file
+    for(int i = 0; i < TotalCount; i++) //iterate through all the data
+        fprintf(words, "%s %d\n", Dict[i].word, Dict[i].unlocked); //insert all the data back into the file
+    fclose(words); //close the file
 }
 
