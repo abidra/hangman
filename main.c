@@ -71,7 +71,7 @@ void SaveScore(int score)
     }
     fclose(ScoreFile); //close the file
 
-    MergeSortScore(LB, 0, DataCount-1); //sort the score after saving nwe data
+    MergeSortScore(LB, 0, DataCount-1); //sort the score after saving new data
 
     ScoreFile = fopen(LeadFile, "w"); //open score file for writing
     fprintf(ScoreFile, "%d\n", DataCount); //insert new number of data in the file
