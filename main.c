@@ -31,8 +31,9 @@ void ClearScreen();
 void ReturnToMenu();
 void ToLower(char *str, int len);
 bool FileError(FILE *fp);
-void MergeSort(Dictionary *data, int min, int max);
-void MergeSortScore(Leaderboard *data, int min, int max);
+void MergeSortD(Dictionary *data, int min, int max);
+void MergeSortL(Leaderboard *data, int min, int max, bool score);
+int BinerSearch(Leaderboard *data, int min, int max);
 
 void SaveScore(int score)
 {
@@ -51,29 +52,24 @@ void SaveScore(int score)
     int DataCount; fscanf(ScoreFile, "%d", &DataCount); //get the number of data in the file
     Leaderboard LB[DataCount+1]; //to store user and score data
     //length is data count + 1 so we can insert the new data
-    bool UserExist = false; //to determine if it's a new player or not
-
     for(int i = 0; i < DataCount; i++) //iterate through all the data
-    {
         fscanf(ScoreFile, "%s%d", LB[i].name, &LB[i].score); //insert name and score into the struct
-        if(strcmp(LB[i].name, Name) == 0 && !UserExist) //if the username already exist
-        {
-            if(score > LB[i].score) LB[i].score = score; //replace the score of that username (if it's higher)
-            UserExist = true; //keep track that this is an not a new player
-        }
-    }
-    if(!UserExist) //if the player is new
+    //sort the data based on name in ascending order so we can use binary search
+    MergeSortL(LB, 0, DataCount-1, false);
+
+    //search the username in the database to determine if it's a new player or not
+    int FoundIndex = BinerSearch(LB, 0, DataCount-1);
+    if(FoundIndex == -1) //if the player is new
     {
         //insert it's username and it's score into the end of the struct
         strcpy(LB[DataCount].name, Name);
         LB[DataCount].score = score;
         DataCount++; //increase the number of data
     }
-    fclose(ScoreFile); //close the file
+    //if the username already exist and the score is higher than before, replace the score of that username
+    else if(score > LB[FoundIndex].score) LB[FoundIndex].score = score;
 
-    MergeSortScore(LB, 0, DataCount-1); //sort the score after saving new data
-
-    ScoreFile = fopen(LeadFile, "w"); //open score file for writing
+    fclose(ScoreFile); ScoreFile = fopen(LeadFile, "w"); //close the file and reopen it for writing
     fprintf(ScoreFile, "%d\n", DataCount); //insert new number of data in the file
 
     for(int i = 0; i < DataCount; i++) //iterate through all the data
@@ -212,8 +208,9 @@ void Game(int round, int TotalScore)
 
     //prints win/lose message based on the number of lives
     printf("\nYou %s The secret word was %s.\n", lives > 0 ? "win!" : "lose...", SecretWord);
-    //calculate score based on the word difficulty and the number of lives
-    int score = TotalScore + (BaseScore + (difficulty * lives));
+    int score = TotalScore; //set the score to be the same as previous score
+    //calculate new score based on the word difficulty and the number of lives with the addition of basescore
+    if(lives > 0) score += BaseScore + (difficulty * lives);
     //prints the current score if the game is not over, or print final score if the game is over
     printf("%s Score is : %d\n", lives > 0 ? "Current" : "Final", score);
     if(lives > 0) //if the game is not over
@@ -235,10 +232,10 @@ void PrintDictionary()
 
     for(int i = 0; i < WordCount; i++) 	//read all word data and store them
     { int temp; fscanf(words, "%s%d", Dict[i].word, &temp); Dict[i].unlocked = temp; }
-    MergeSort(Dict, 0, WordCount-1); //sort all words alphabetically (ascending from a to z)
+    MergeSortD(Dict, 0, WordCount-1); //sort all words alphabetically (ascending from a to z)
 
     ClearScreen(); //clear the screen
-    printf("Word Dictionary List :\n"); //prints title
+    printf("Word Dictionary List :\n"); //print header
     int PrintedCount = 0; //keep track of how many words have been printed
     for (int i = 0; i < WordCount; i++)
     {
@@ -261,13 +258,15 @@ void PrintLeaderboard()
     else //else if the file exist and it's not empty
     {
         int DataCount; fscanf(ScoreFile, "%d", &DataCount); //get the number of data in the file
+        Leaderboard LB[DataCount]; //to store user and score data
         printf("Leaderboard:\n"); //print header
-        for(int i = 1; i <= DataCount; i++) //iterate through all the data in the file
-        {
-            char UserName[MaxNameLen]; int Score; //variables to store the username and the score
-            fscanf(ScoreFile, "%s%d", UserName, &Score); //assign username and score data into that variables
-            printf("%d. %s - %d\n", i, UserName, Score); //print data stored in that variables into the console
-        }
+        for(int i = 0; i < DataCount; i++) //iterate through all the data in the file
+            fscanf(ScoreFile, "%s%d", LB[i].name, &LB[i].score); //store all username and score data
+
+        MergeSortL(LB, 0, DataCount-1, true); //sort the data based on score(descending) before printing
+
+        for(int i = 0; i < DataCount; i++) //iterate through all the data
+            printf("%d. %s - %d\n", i+1, LB[i].name, LB[i].score); //print username and score data into the console
     }
 
     fclose(ScoreFile); //close the file
@@ -387,7 +386,7 @@ bool FileError(FILE *fp)
         else { fclose(fp); return true; }
     }
 }
-void MergeArray(Dictionary *data, int min, int mid, int max)
+void MergeArrayD(Dictionary *data, int min, int mid, int max)
 {
     int len1 = mid-min+1, len2 = max-mid; //get the length of the first and second half of the array
     //make a temporary array to store the first and the second half of the array
@@ -404,20 +403,20 @@ void MergeArray(Dictionary *data, int min, int mid, int max)
         else if(y >= len2) { data[i] = left[x++]; continue; }
 
         //if there are still some elements on both of the arrays,
-        //compare the strings, and copy the data with the smaller string (alphabetically) to the merged array
+        //compare the strings, and sort the data string in ascending order to the merged array
         if(strcmp(left[x].word, right[y].word) < 0) data[i] = left[x++];
         else data[i] = right[y++];
     }
 }
-void MergeSort(Dictionary *data, int min, int max)
+void MergeSortD(Dictionary *data, int min, int max)
 {
     if(min >= max) return; //if min exceeds max, then return
 
     int mid = ((max-min)/2)+min; //get the middle point of max and min
-    MergeSort(data, min, mid); //divide and sort the first half of the array
-    MergeSort(data, mid+1, max); //divide and sort the second half of the array
+    MergeSortD(data, min, mid); //divide and sort the first half of the array
+    MergeSortD(data, mid+1, max); //divide and sort the second half of the array
 
-    MergeArray(data, min, mid, max); //merge and sort that first and second half of the array
+    MergeArrayD(data, min, mid, max); //merge and sort that first and second half of the array
 }
 void AddNewWords()
 {
@@ -444,7 +443,7 @@ void AddNewWords()
         fprintf(words, "%s %d\n", Dict[i].word, Dict[i].unlocked); //insert all the data back into the file
     fclose(words); //close the file
 }
-void MergeArrayScore(Leaderboard *data, int min, int mid, int max)
+void MergeArrayL(Leaderboard *data, int min, int mid, int max, bool score)
 {
     int len1 = mid-min+1, len2 = max-mid; //get the length of the first and second half of the array
     //make a temporary array to store the first and the second half of the array
@@ -461,18 +460,46 @@ void MergeArrayScore(Leaderboard *data, int min, int mid, int max)
         else if(y >= len2) { data[i] = left[x++]; continue; }
 
         //if there are still some elements on both of the arrays,
-        //compare the scores, and copy the data with the smaller string (alphabetically) to the merged array
-        if(left[x].score < right[y].score) data[i] = left[x++];
-        else data[i] = right[y++];
+        //if the sorting is based on score
+        if(score)
+        {
+            //compare the scores, and copy the data with the highest score to the merged array (descending order)
+            //else if the score is identical, then sort the name in ascending order
+            if(left[x].score > right[y].score) data[i] = left[x++];
+            else if(left[x].score == right[y].score && strcmp(left[x].name, right[y].name) < 0) data[i] = left[x++];
+            else data[i] = right[y++];
+        }
+        //else if the sorting is based on name
+        else
+        {
+            //sort the name in ascending order
+            if(strcmp(left[x].name, right[y].name) < 0) data[i] = left[x++];
+            else data[i] = right[y++];
+        }
     }
 }
-void MergeSortScore(Leaderboard *data, int min, int max)
+void MergeSortL(Leaderboard *data, int min, int max, bool score)
 {
     if(min >= max) return; //if min exceeds max, then return
 
     int mid = ((max-min)/2)+min; //get the middle point of max and min
-    MergeSortScore(data, min, mid); //divide and sort the first half of the array
-    MergeSortScore(data, mid+1, max); //divide and sort the second half of the array
+    MergeSortL(data, min, mid, score); //divide and sort the first half of the array
+    MergeSortL(data, mid+1, max, score); //divide and sort the second half of the array
 
-    MergeArrayScore(data, min, mid, max); //merge and sort that first and second half of the array
+    MergeArrayL(data, min, mid, max, score); //merge and sort that first and second half of the array
 }
+int BinerSearch(Leaderboard *data, int min, int max)
+{
+    while(min <= max) //keep going while min is not larger than max
+    {
+        int mid = ((max-min)/2)+min; //get the middle point of min and max
+        //if tthe name is found, return the index of that data
+        if(strcmp(Name, data[mid].name) == 0) return mid;
+        //if the data at the mid point is smaller than the searched name, decrease max to mid-1
+        else if(strcmp(Name, data[mid].name) < 0) max = mid-1;
+        //if the mid point is bigger than the searched name, increase min to mid+1
+        else if(strcmp(Name, data[mid].name) > 0) min = mid+1;
+    }
+    return -1; //if min is already larger than max, meaning the name is not found, then return -1
+}
+
