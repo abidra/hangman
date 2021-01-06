@@ -14,17 +14,17 @@
 #define MaxNameLen 51 //defines the maximum username length (n+1)
 
 //global var
-char Name[MaxNameLen];
+char Name[MaxNameLen]; //store the current username
 typedef struct
 {
     char word[MaxWordLen];
     bool unlocked;
-} Dictionary;
+} Dictionary; //struct for storing words data from dictionary 
 typedef struct
 {
     char name[MaxNameLen];
     int score;
-} Leaderboard;
+} Leaderboard; //struct for storing score data from leaderboard
 
 //function prototype, so we can call them even before it is defined
 void ClearScreen();
