@@ -87,8 +87,8 @@ char GetLetter()
         //prompt the user to enter a character and store it
         printf("Guess a letter : "); scanf(" %c", &guess);
         invalid = false; //default invalid to false
-        //if the user entered a non alphabet character, set invalid to true, and output an error message
-        if(!((guess >= 'A' && guess <= 'Z') || (guess >= 'a' && guess <= 'z')))
+        //if the user entered a non alphabet character, set invalid to true, and output an error message (except for dot)
+        if(!((guess >= 'A' && guess <= 'Z') || (guess >= 'a' && guess <= 'z')) && guess != '.')
             { invalid = true; printf("Please Input Alphabets only\n"); }
     }
     return guess; //return the letter input
@@ -190,6 +190,7 @@ void Game(int round, int TotalScore)
         printf("\nRemaining Lives : %d\n", lives); //show the player's lives
         if(strcmp(SecretWord, Revealed) == 0 || lives == 0) break; //if the word has been revealed, break
         char guess = GetLetter(); //to store the guessed char input
+        if(guess == '.') { lives = 0; break; } //if the user entered dot, set lives to 0, and end the game
         if(guess < 'a') guess += ('a'-'A'); //make sure the letter is lowercase
 
         //if the letter was already guessed before, set the guessed bool to true,
@@ -290,9 +291,9 @@ void GetName()
     while(invalid) //keep prompting if it's still invalid
     {
         //Prompt the User to Input a Name, and put it into the Name Global Variable
-        printf("Your Username : "); scanf(" %[^\n]", Name);
+        printf("Insert UserName : "); scanf(" %[^\n]", Name);
         //if the name exceeds the max length, output an error message and prompt again
-        if(strlen(Name) >= MaxNameLen) { printf("Username must be less than %d characters\n", MaxNameLen); continue; }
+        if(strlen(Name) >= MaxNameLen) { printf("Name must be less %d characters\n", MaxNameLen); continue; }
 
         invalid = false; //set invalid to false(assume it's valid)
         for(int i = 0; i < strlen(Name); i++) //iterate through all chars in the Name string
@@ -303,7 +304,7 @@ void GetName()
                 { invalid = true; break; }
         }
         //print error message if invalid is true
-        if(invalid) printf("Name can only contain letters, numbers, or underscore\n");
+        if(invalid) printf("Name can only contain letters, numbers, and underscore\n");
     }
 }
 void MainMenu()
@@ -320,13 +321,16 @@ void MainMenu()
     printf("5. Change Name\n");
     printf("0. Exit\n");
 
-    char menu = '\0'; //to store what number the user entered
-    while(menu < '0' || menu > '5') //keep prompting until the user entered a number from 0-5
+    char input[MaxNameLen] = ""; //to store user input
+    bool invalid = true; //to determine if the input is valid or not
+    while(invalid) //keep prompting until the input is valid
     {
-        printf(">> "); scanf(" %c", &menu); //prompt the user to Input a number to enter one of the menus
-        if(menu < '0' || menu > '5') printf("Please Input 0-5\n"); //Print an error message if the user entered invalid input
+        printf(">> "); scanf(" %[^\n]", input); //prompt the user to Input a number to enter one of the menus
+        invalid = false; //default invalid to false, then set it to true and print an error message if the user entered invalid input
+        if(input[0] < '0' || input[0] > '5' || strlen(input) > 1) { invalid = true; printf("Please Input 0-5\n"); }
     }
 
+    char menu = input[0]; //get the character input
     if(menu == '0') return; //if the user entered 0, terminate the function (and the program)
     //if the user entered 1-5, then call the respective functions
     else if(menu == '1') Game(1, 0);
@@ -502,3 +506,4 @@ int BinerSearch(Leaderboard *data, int min, int max)
     }
     return -1; //if min is already larger than max, meaning the name is not found, then return -1
 }
+
